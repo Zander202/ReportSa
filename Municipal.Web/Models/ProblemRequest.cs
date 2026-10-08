@@ -19,6 +19,7 @@ public class ProblemRequest
     public RequestStatus Status { get; set; } = RequestStatus.Submitted;
     [Timestamp] public byte[] RowVersion { get; set; } = [];
     public List<StatusHistory> History { get; set; } = [];
+    [MaxLength(254)] public string ResidentEmail { get; set; } = "";
 }
 public class StatusHistory
 {

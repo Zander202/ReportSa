@@ -3,28 +3,116 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>@ViewData["Title"] · Municipal Connect</title>
+    <meta name="theme-color" content="#007749" />
+    <title>@ViewData["Title"] · Municipal Connect | Republic of South Africa</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇿🇦</text></svg>" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<header><div class="nav-wrap">
-    <a class="brand" asp-controller="Requests" asp-action="Report"><span class="brand-mark" aria-hidden="true">M</span>Municipal Connect</a>
-    <nav aria-label="Main navigation">
-        <a asp-controller="Requests" asp-action="Report">Report a Problem</a>
-        <a asp-controller="Requests" asp-action="Track">Track a Request</a>
-        @if (User.IsInRole("Administrator")) {
-            <a asp-controller="Admin" asp-action="Index">Admin Requests</a>
-            <form asp-controller="Account" asp-action="Logout" method="post"><button class="nav-button" type="submit">Log out</button></form>
-        } else { <a asp-controller="Account" asp-action="Login">Admin Login</a> }
-    </nav>
-</div></header>
-<main id="main" class="container">
-    @if (TempData["Success"] is string success) { <div class="notice success" role="status">@success</div> }
-    @if (TempData["Error"] is string error) { <div class="notice error" role="alert">@error</div> }
-    @RenderBody()
-</main>
-<footer><div class="container"><strong>Municipal Connect</strong><span>SPM622 student prototype · Local reporting and tracking</span></div></footer>
-<script src="~/js/site.js" asp-append-version="true" defer></script>
-@await RenderSectionAsync("Scripts", required: false)
-</body></html>
+    <!-- Reusable South African flag (drawn in SVG, no external image needed) -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <symbol id="sa-flag" viewBox="0 0 900 600">
+            <rect width="900" height="300" fill="#E03C31" />
+            <rect y="300" width="900" height="300" fill="#001489" />
+            <polygon points="0,60 280,300 0,540" fill="#FFB81C" />
+            <polygon points="0,115 205,300 0,485" fill="#000" />
+            <polyline points="0,0 330,300 0,600" fill="none" stroke="#fff" stroke-width="190" />
+            <polyline points="330,300 900,300" fill="none" stroke="#fff" stroke-width="190" />
+            <polyline points="0,0 330,300 0,600" fill="none" stroke="#007749" stroke-width="110" />
+            <polyline points="330,300 900,300" fill="none" stroke="#007749" stroke-width="110" />
+        </symbol>
+    </svg>
+
+    <a class="skip" href="#main">Skip to content</a>
+
+    <div class="banner-top">
+        <div class="inner">
+            <span>Republic of South Africa &bull; Official Government Service Portal</span>
+            <span class="sos">Emergency: SAPS <strong>10111</strong> &bull; Ambulance <strong>10177</strong> &bull; Cell <strong>112</strong></span>
+        </div>
+    </div>
+    <div class="flag-stripe"></div>
+
+    <header class="site-header">
+        <div class="nav-wrap">
+            <a class="brand" asp-controller="Requests" asp-action="Report">
+                <img class="coa"
+                     src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Coat_of_arms_of_South_Africa.svg/180px-Coat_of_arms_of_South_Africa.svg.png"
+                     alt="Coat of Arms of the Republic of South Africa" width="54" height="68"
+                     onerror="this.style.display='none'" />
+                <div class="brand-text">
+                    <span class="rsa">Republic of South Africa</span>
+                    <span class="dept">Municipal Connect</span>
+                    <span class="tagline">Local Government Service Delivery</span>
+                </div>
+            </a>
+
+            <button class="menu-toggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="main-nav">&#9776;</button>
+
+            <nav id="main-nav" aria-label="Main navigation">
+                <a asp-controller="Requests" asp-action="Report">Report a Problem</a>
+                <a asp-controller="Requests" asp-action="Track">Track a Request</a>
+
+                @if (User.IsInRole("Administrator"))
+                {
+                    <a asp-controller="Admin" asp-action="Index">Admin Requests</a>
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="display:inline">
+                        <button class="nav-button" type="submit">Log out</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="cta" asp-controller="Account" asp-action="Login">Admin Login</a>
+                }
+            </nav>
+
+            <svg class="sa-flag-mini" role="img" aria-label="Flag of South Africa"><use href="#sa-flag" /></svg>
+        </div>
+    </header>
+
+    <main id="main" class="container">
+        @if (TempData["Success"] is string success)
+        {
+            <div class="notice success" role="status">@success</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="notice error" role="alert">@error</div>
+        }
+
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div class="flag-stripe"></div>
+        <div class="container">
+            <div>
+                <h4>Municipal Connect</h4>
+                <p>Report service delivery problems like potholes, water leaks and power outages, and follow them until they are resolved.</p>
+                <p style="font-size:11px;opacity:.8">Designed in line with GCIS Common Look and Feel guidelines.</p>
+            </div>
+            <div>
+                <h4>Quick links</h4>
+                <ul>
+                    <li><a asp-controller="Requests" asp-action="Report">Report a problem</a></li>
+                    <li><a asp-controller="Requests" asp-action="Track">Track a request</a></li>
+                    <li><a href="https://www.gov.za" target="_blank" rel="noopener">gov.za</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4>Emergency numbers</h4>
+                <ul>
+                    <li>SAPS Flying Squad: <strong>10111</strong></li>
+                    <li>Ambulance / ER24: <strong>10177</strong></li>
+                    <li>From a cellphone: <strong>112</strong></li>
+                </ul>
+                <p style="font-size:11px;opacity:.8">This portal is not for emergencies.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">&copy; @DateTime.Now.Year Republic of South Africa &middot; SPM622 Student Prototype &middot; For educational purposes only</div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

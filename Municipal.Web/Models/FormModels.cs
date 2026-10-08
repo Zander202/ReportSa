@@ -6,7 +6,8 @@ public class ReportForm
     [Required, EnumDataType(typeof(Category))] public Category? Category { get; set; }
     [Required, StringLength(200), Display(Name="Location / address")] public string Location { get; set; } = "";
     [StringLength(1000), Display(Name="Short description (optional)")] public string? Description { get; set; }
-    [Required, Phone, StringLength(30), Display(Name="SMS phone number")] public string ResidentPhoneNumber { get; set; } = "";
+   
+    [Required, EmailAddress, StringLength(254), Display(Name = "Email address")] public string ResidentEmail { get; set; } = "";
 }
 public class TrackForm
 {

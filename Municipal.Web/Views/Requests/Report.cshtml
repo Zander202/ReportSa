@@ -1,20 +1,88 @@
-@model ReportForm
-@{ ViewData["Title"] = "Report a Problem"; }
-<div class="two-column">
-<section class="intro">
-    <p class="eyebrow">A better neighbourhood starts here</p>
-    <h1>Report a local problem.</h1>
-    <p class="lead">Tell us what needs attention. Keep your reference code to follow the request as it moves through the municipal workflow.</p>
-    <div class="info-card"><h2>How it works</h2><ol class="how"><li>Describe the problem and its location.</li><li>Save your unique reference code.</li><li>Track status updates whenever you need.</li></ol></div>
-    <p class="muted">No resident account required. This student prototype does not provide emergency assistance.</p>
+﻿@model ReportForm
+@{
+    ViewData["Title"] = "Report a Problem";
+    var icons = new Dictionary<Category, string>
+    {
+        [Category.Pothole] = "🕳️",
+        [Category.PowerOutage] = "⚡",
+        [Category.BrokenStreetlight] = "💡",
+        [Category.WaterLeak] = "💧",
+        [Category.BlockedDrain] = "🌊",
+        [Category.IllegalDumping] = "🗑️",
+        [Category.Other] = "📋"
+    };
+}
+
+<section class="hero reveal">
+    <div>
+        <p class="eyebrow">A better neighbourhood starts here</p>
+        <h1>Report a local problem.</h1>
+        <p class="lead">Tell us what needs attention. Keep your reference code to follow the request as it moves through the municipal workflow.</p>
+        <div class="stats">
+            <span class="stat">✔ No account needed</span>
+            <span class="stat">📱 SMS confirmation</span>
+            <span class="stat">🔎 Live tracking</span>
+        </div>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 900 600"><use href="#sa-flag" /></svg>
+    </div>
 </section>
-<section class="panel"><h2>Problem details</h2><p class="muted">Category and location are required.</p>
-<form asp-action="Report" method="post">
-    <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
-    <label asp-for="Category"></label><select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()"><option value="">Select a category</option></select><span asp-validation-for="Category" class="validation"></span>
-    <label asp-for="Location"></label><input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" /><span asp-validation-for="Location" class="validation"></span>
-    <label asp-for="Description"></label><textarea asp-for="Description" rows="5" maxlength="1000" placeholder="Add details that will help the municipality understand the issue."></textarea><span asp-validation-for="Description" class="validation"></span>
-    <label asp-for="ResidentPhoneNumber"></label><input asp-for="ResidentPhoneNumber" maxlength="30" placeholder="e.g. +27 82 123 4567" autocomplete="tel" /><span asp-validation-for="ResidentPhoneNumber" class="validation"></span>
-    <p class="hint">Up to 1,000 characters. Please avoid personal or sensitive information.</p>
-    <button type="submit" class="button">Submit problem</button>
-</form></section></div>
+
+<div class="two-column">
+    <section class="intro reveal">
+        <div class="info-card">
+            <h2>How it works</h2>
+            <ol class="how">
+                <li>Describe the problem and its location.</li>
+                <li>Save your unique reference code.</li>
+                <li>Track status updates whenever you need.</li>
+            </ol>
+        </div>
+        <p class="muted">No resident account required. This student prototype does not provide emergency assistance. In an emergency call <strong>10111</strong>, <strong>10177</strong> or <strong>112</strong>.</p>
+    </section>
+
+    <section class="panel reveal">
+        <h2>Problem details</h2>
+        <p class="muted">Category, location and phone number are required.</p>
+
+        <form asp-action="Report" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
+
+            <label>What kind of problem?</label>
+            <div class="tiles" role="group" aria-label="Quick category picker">
+                @foreach (var c in Enum.GetValues<Category>())
+                {
+                    <button type="button" class="tile" data-category="@((int)c)">
+                        <span class="tile-icon" aria-hidden="true">@icons[c]</span>
+                        <span>@Labels.CategoryName(c)</span>
+                    </button>
+                }
+
+                <label asp-for="ResidentEmail"></label>
+                <input asp-for="ResidentEmail" type="email" maxlength="254" placeholder="e.g. thabo@example.co.za" autocomplete="email" />
+                <span asp-validation-for="ResidentEmail" class="validation"></span>
+                <p class="hint">We'll email your reference code and any status updates.</p>
+            </div>
+
+            <label asp-for="Category"></label>
+            <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()">
+                <option value="">Select a category</option>
+            </select>
+            <span asp-validation-for="Category" class="validation"></span>
+
+            <label asp-for="Location"></label>
+            <input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" />
+            <span asp-validation-for="Location" class="validation"></span>
+
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" rows="5" maxlength="1000" placeholder="Add details that will help the municipality understand the issue."></textarea>
+            <div class="counter"><span id="char-count">0</span> / 1000</div>
+            <span asp-validation-for="Description" class="validation"></span>
+            <p class="hint">Please avoid personal or sensitive information.</p>
+
+            <button type="submit" class="button gold" style="width:100%;margin-top:24px">Submit problem</button>
+
+        </form>
+    </section>
+</div>

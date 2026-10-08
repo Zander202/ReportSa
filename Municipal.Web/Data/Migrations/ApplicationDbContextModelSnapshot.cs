@@ -17,7 +17,7 @@ namespace Municipal.Web.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -228,13 +228,6 @@ namespace Municipal.Web.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
                     b.Property<string>("AssignedPerson")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -244,6 +237,13 @@ namespace Municipal.Web.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTimeOffset>("LastUpdatedAt")
                         .HasColumnType("datetimeoffset");
@@ -261,13 +261,18 @@ namespace Municipal.Web.Data.Migrations
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
 
+                    b.Property<DateTimeOffset>("ReportedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("ResidentEmail")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
                     b.Property<string>("ResidentPhoneNumber")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
-
-                    b.Property<DateTimeOffset>("ReportedAt")
-                        .HasColumnType("datetimeoffset");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
