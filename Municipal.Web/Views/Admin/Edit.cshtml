@@ -1,0 +1,10 @@
+@model ProblemRequest
+@{ ViewData["Title"] = "Manage Request"; }
+<a class="back-link" asp-action="Index">← All requests</a><section class="panel narrow"><p class="eyebrow">Manage request</p><h1>@Labels.CategoryName(Model.Category)</h1><p class="reference">@Model.ReferenceCode</p>
+<dl class="details"><div><dt>Location</dt><dd>@Model.Location</dd></div><div><dt>Reported</dt><dd>@Model.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</dd></div><div><dt>SMS phone</dt><dd>@Model.ResidentPhoneNumber</dd></div></dl><p class="description">@(string.IsNullOrEmpty(Model.Description) ? "No description provided." : Model.Description)</p>
+<form asp-action="Update" method="post"><input type="hidden" name="Id" value="@Model.Id" /><input type="hidden" name="RowVersion" value="@Convert.ToBase64String(Model.RowVersion)" />
+<label for="Priority">Priority</label><select id="Priority" name="Priority">@foreach (var p in Enum.GetValues<Priority>()) { <option value="@((int)p)" selected="@(Model.Priority == p)">@p</option> }</select><p class="hint">Priority describes urgency and does not change progress.</p>
+<label for="AssignedRole">Assigned role</label><input id="AssignedRole" name="AssignedRole" maxlength="120" value="@Model.AssignedRole" />
+<label for="AssignedPerson">Assigned person</label><input id="AssignedPerson" name="AssignedPerson" maxlength="120" value="@Model.AssignedPerson" />
+<label for="Status">Status</label><select id="Status" name="Status"><option value="@((int)Model.Status)">@Labels.Status(Model.Status) (current)</option>@if (Model.Status != RequestStatus.Closed) { <option value="@((int)Model.Status+1)">@Labels.Status((RequestStatus)((int)Model.Status+1))</option> }</select><p class="hint">Only the next stage is allowed. Closed requests remain closed.</p>
+<button class="button" type="submit">Save changes</button></form></section>

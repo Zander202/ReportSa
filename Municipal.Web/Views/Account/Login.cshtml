@@ -1,0 +1,7 @@
+@model LoginForm
+@{ ViewData["Title"] = "Admin Login"; }
+<section class="panel narrow"><p class="eyebrow">Municipal administration</p><h1>Admin login</h1><p class="muted">Use the administrator account configured for this local system.</p>
+<form asp-action="Login" method="post"><div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
+<label asp-for="Email"></label><input asp-for="Email" autocomplete="username" /><span asp-validation-for="Email" class="validation"></span>
+<label asp-for="Password"></label><input asp-for="Password" autocomplete="current-password" /><span asp-validation-for="Password" class="validation"></span>
+<button class="button" type="submit">Log in</button></form></section>

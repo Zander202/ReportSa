@@ -1,0 +1,12 @@
+@model TrackForm
+@{ ViewData["Title"] = "Track a Request"; }
+<div class="page-heading"><p class="eyebrow">Stay informed</p><h1>Track your request.</h1><p class="lead">Enter the reference code you received when reporting the problem.</p></div>
+<section class="panel"><form asp-action="Track" method="post" class="track-form"><div><label asp-for="ReferenceCode"></label><input asp-for="ReferenceCode" maxlength="32" placeholder="MUN-…" autocomplete="off" spellcheck="false" /><span asp-validation-for="ReferenceCode" class="validation"></span></div><button class="button" type="submit">Find request</button></form></section>
+@if (Model.Request is { } r) {
+<section class="panel result"><div class="result-top"><h2>@Labels.CategoryName(r.Category)</h2><span class="status-badge">@Labels.Status(r.Status)</span></div><p class="reference">@r.ReferenceCode</p>
+<dl class="details"><div><dt>Reported</dt><dd>@r.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</dd></div><div><dt>Last update</dt><dd>@r.LastUpdatedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</dd></div><div><dt>Assigned role</dt><dd>@r.AssignedRole</dd></div><div><dt>Assigned person</dt><dd>@r.AssignedPerson</dd></div></dl>
+<ol class="progress" aria-label="Workflow progress">
+@foreach (var stage in Enum.GetValues<RequestStatus>()) { <li class="@((int)stage <= (int)r.Status ? "reached" : "")" aria-current="@(stage == r.Status ? "step" : null)"><span aria-hidden="true">@((int)stage+1)</span>@Labels.Status(stage)@(stage == r.Status ? " (current)" : "")</li> }
+</ol><p class="hint">Stages show workflow progress. They do not predict a completion date.</p>
+<h3>Status history</h3><ul class="history">@foreach (var entry in r.History.OrderBy(x => x.ChangedAt)) { <li><strong>@Labels.Status(entry.Status)</strong><time datetime="@entry.ChangedAt.ToString("O")">@entry.ChangedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</time></li> }</ul></section>
+} else { <p class="muted">Your request details will appear here after a matching reference is found.</p> }

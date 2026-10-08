@@ -1,0 +1,5 @@
+@model string
+@{ ViewData["Title"] = "Request Submitted"; }
+<section class="panel narrow"><p class="eyebrow">Request received</p><h1>Thank you for reporting.</h1><p>Your request is <strong>Submitted</strong> with <strong>Normal</strong> priority.</p>
+<label for="reference">Your reference code</label><div class="copy-row"><input id="reference" name="reference" value="@Model" readonly /><button class="button secondary" type="button" data-copy="reference">Copy</button></div><p id="copy-feedback" role="status"></p>
+<p>Save this code now. It is the only way to find your request without an account. If SMS is configured, a confirmation message is also sent to the phone number you provided.</p><a class="button" asp-action="Track">Track a Request</a> <a class="text-link" asp-action="Report">Report another problem</a></section>

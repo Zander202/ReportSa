@@ -1,0 +1,14 @@
+@model List<ProblemRequest>
+@{ ViewData["Title"] = "Admin Requests"; }
+<div class="page-heading"><p class="eyebrow">Administration</p><h1>Reported requests</h1><p class="lead">Review problems, set priorities, and move requests through the workflow.</p></div>
+<section class="panel"><form method="get" class="filters">
+<div><label for="category">Category</label><select id="category" name="category"><option value="">All categories</option>@foreach (var c in Enum.GetValues<Category>()) { <option value="@((int)c)" selected="@(ViewBag.Category == c)">@Labels.CategoryName(c)</option> }</select></div>
+<div><label for="priority">Priority</label><select id="priority" name="priority"><option value="">All priorities</option>@foreach (var p in Enum.GetValues<Priority>()) { <option value="@((int)p)" selected="@(ViewBag.Priority == p)">@p</option> }</select></div>
+<div><label for="status">Status</label><select id="status" name="status"><option value="">All statuses</option>@foreach (var s in Enum.GetValues<RequestStatus>()) { <option value="@((int)s)" selected="@(ViewBag.Status == s)">@Labels.Status(s)</option> }</select></div>
+<div><label for="sort">Sort by</label><select id="sort" name="sort"><option value="priority" selected="@(ViewBag.Sort == "priority")">Highest priority, oldest first</option><option value="oldest" selected="@(ViewBag.Sort == "oldest")">Reporting date: oldest first</option><option value="newest" selected="@(ViewBag.Sort == "newest")">Reporting date: newest first</option></select></div>
+<button class="button" type="submit">Apply</button><a asp-action="Index">Reset</a></form></section>
+<p class="muted">@Model.Count matching request(s)</p>
+@if (Model.Count == 0) { <section class="panel"><h2>No requests found</h2><p>There are no reported requests matching these filters.</p></section> } else {
+<div class="table-wrap"><table><caption class="sr-only">Municipal requests</caption><thead><tr><th>Reference / category</th><th>Location</th><th>Assigned</th><th>Reported (SAST)</th><th>Priority</th><th>Status</th><th>Action</th></tr></thead><tbody>
+@foreach (var r in Model) { <tr><td><span class="reference">@r.ReferenceCode</span><br />@Labels.CategoryName(r.Category)</td><td>@r.Location</td><td>@r.AssignedRole<br /><span class="muted">@r.AssignedPerson</span></td><td>@r.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm")</td><td><span class="priority @r.Priority.ToString().ToLowerInvariant()">@r.Priority</span></td><td>@Labels.Status(r.Status)</td><td><a asp-action="Edit" asp-route-id="@r.Id" aria-label="Manage request @r.ReferenceCode">Manage</a></td></tr> }
+</tbody></table></div> }

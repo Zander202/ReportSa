@@ -1,0 +1,20 @@
+@model ReportForm
+@{ ViewData["Title"] = "Report a Problem"; }
+<div class="two-column">
+<section class="intro">
+    <p class="eyebrow">A better neighbourhood starts here</p>
+    <h1>Report a local problem.</h1>
+    <p class="lead">Tell us what needs attention. Keep your reference code to follow the request as it moves through the municipal workflow.</p>
+    <div class="info-card"><h2>How it works</h2><ol class="how"><li>Describe the problem and its location.</li><li>Save your unique reference code.</li><li>Track status updates whenever you need.</li></ol></div>
+    <p class="muted">No resident account required. This student prototype does not provide emergency assistance.</p>
+</section>
+<section class="panel"><h2>Problem details</h2><p class="muted">Category and location are required.</p>
+<form asp-action="Report" method="post">
+    <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
+    <label asp-for="Category"></label><select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()"><option value="">Select a category</option></select><span asp-validation-for="Category" class="validation"></span>
+    <label asp-for="Location"></label><input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" /><span asp-validation-for="Location" class="validation"></span>
+    <label asp-for="Description"></label><textarea asp-for="Description" rows="5" maxlength="1000" placeholder="Add details that will help the municipality understand the issue."></textarea><span asp-validation-for="Description" class="validation"></span>
+    <label asp-for="ResidentPhoneNumber"></label><input asp-for="ResidentPhoneNumber" maxlength="30" placeholder="e.g. +27 82 123 4567" autocomplete="tel" /><span asp-validation-for="ResidentPhoneNumber" class="validation"></span>
+    <p class="hint">Up to 1,000 characters. Please avoid personal or sensitive information.</p>
+    <button type="submit" class="button">Submit problem</button>
+</form></section></div>
