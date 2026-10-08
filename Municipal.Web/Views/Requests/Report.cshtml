@@ -1,4 +1,5 @@
 ﻿@model ReportForm
+@inject Municipal.Web.Services.MunicipalityDirectory Municipalities
 @{
     ViewData["Title"] = "Report a Problem";
     var icons = new Dictionary<Category, string>
@@ -20,7 +21,7 @@
         <p class="lead">Tell us what needs attention. Keep your reference code to follow the request as it moves through the municipal workflow.</p>
         <div class="stats">
             <span class="stat">✔ No account needed</span>
-            <span class="stat">📱 SMS confirmation</span>
+            <span class="stat">Email confirmation</span>
             <span class="stat">🔎 Live tracking</span>
         </div>
     </div>
@@ -44,7 +45,6 @@
 
     <section class="panel reveal">
         <h2>Problem details</h2>
-        <p class="muted">Category, location and phone number are required.</p>
 
         <form asp-action="Report" method="post" novalidate>
             <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
@@ -59,10 +59,6 @@
                     </button>
                 }
 
-                <label asp-for="ResidentEmail"></label>
-                <input asp-for="ResidentEmail" type="email" maxlength="254" placeholder="e.g. thabo@example.co.za" autocomplete="email" />
-                <span asp-validation-for="ResidentEmail" class="validation"></span>
-                <p class="hint">We'll email your reference code and any status updates.</p>
             </div>
 
             <label asp-for="Category"></label>
@@ -71,9 +67,32 @@
             </select>
             <span asp-validation-for="Category" class="validation"></span>
 
+            <label asp-for="MunicipalityCode"></label>
+            <select asp-for="MunicipalityCode" required>
+                <option value="">Select your municipality</option>
+                @foreach (var province in Municipalities.All.GroupBy(x => x.Province))
+                {
+                    <optgroup label="@province.Key">
+                        @foreach (var municipality in province)
+                        {
+                            <option value="@municipality.Code">@municipality.Label</option>
+                        }
+                    </optgroup>
+                }
+            </select>
+            <span asp-validation-for="MunicipalityCode" class="validation"></span>
+
             <label asp-for="Location"></label>
             <input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" />
             <span asp-validation-for="Location" class="validation"></span>
+            <input asp-for="Latitude" type="hidden" />
+            <input asp-for="Longitude" type="hidden" />
+            <button type="button" id="locate-button" class="button secondary">Use my location</button>
+            <p id="location-feedback" class="hint" role="status" aria-live="polite"></p>
+
+            <label asp-for="ResidentEmail"></label>
+            <input asp-for="ResidentEmail" type="email" maxlength="254" placeholder="e.g. thabo@example.co.za" autocomplete="email" required />
+            <span asp-validation-for="ResidentEmail" class="validation"></span>
 
             <label asp-for="Description"></label>
             <textarea asp-for="Description" rows="5" maxlength="1000" placeholder="Add details that will help the municipality understand the issue."></textarea>

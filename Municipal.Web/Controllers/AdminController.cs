@@ -12,7 +12,8 @@ namespace Municipal.Web.Controllers;
 public class AdminController(
     ApplicationDbContext db,
     RequestService service,
-    UserManager<IdentityUser> users) : Controller
+    UserManager<IdentityUser> users,
+    RoleManager<IdentityRole> roles) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(
@@ -110,7 +111,32 @@ public class AdminController(
 
         if (result.Succeeded)
         {
-            TempData["Success"] = $"User {email} created successfully.";
+            if (!await roles.RoleExistsAsync("Administrator"))
+            {
+                var roleResult = await roles.CreateAsync(new IdentityRole("Administrator"));
+                if (!roleResult.Succeeded)
+                {
+                    foreach (var error in roleResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+
+                    return View();
+                }
+            }
+
+            var roleAssignment = await users.AddToRoleAsync(user, "Administrator");
+            if (!roleAssignment.Succeeded)
+            {
+                foreach (var error in roleAssignment.Errors)
+                {
+                    ModelState.AddModelError("", error.Description);
+                }
+
+                return View();
+            }
+
+            TempData["Success"] = $"Administrator {email} created successfully.";
 
             return RedirectToAction(nameof(Index));
         }

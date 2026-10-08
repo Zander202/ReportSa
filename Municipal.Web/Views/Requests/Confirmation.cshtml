@@ -1,5 +1,19 @@
-@model string
+@model ProblemRequest
 @{ ViewData["Title"] = "Request Submitted"; }
 <section class="panel narrow"><p class="eyebrow">Request received</p><h1>Thank you for reporting.</h1><p>Your request is <strong>Submitted</strong> with <strong>Normal</strong> priority.</p>
-<label for="reference">Your reference code</label><div class="copy-row"><input id="reference" name="reference" value="@Model" readonly /><button class="button secondary" type="button" data-copy="reference">Copy</button></div><p id="copy-feedback" role="status"></p>
-<p>Save this code now. It is the only way to find your request without an account. If SMS is configured, a confirmation message is also sent to the phone number you provided.</p><a class="button" asp-action="Track">Track a Request</a> <a class="text-link" asp-action="Report">Report another problem</a></section>
+<label for="reference">Your reference number</label><div class="copy-row"><input id="reference" name="reference" value="@Model.ReferenceCode" readonly /><button class="button secondary" type="button" data-copy="reference">Copy</button></div><p id="copy-feedback" role="status"></p>
+<dl class="details">
+    <div><dt>Municipality</dt><dd>@Model.MunicipalityName</dd></div>
+    <div><dt>Assigned person</dt><dd>@Model.AssignedPerson</dd></div>
+    <div><dt>Estimated completion</dt><dd>@(Model.EstimatedCompletionAt?.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm")) SAST</dd></div>
+</dl>
+<p class="hint">Provisional prototype estimate.</p>
+@if (Model.ConfirmationEmailStatus == EmailDeliveryStatus.Sent)
+{
+    <p class="notice success" role="status">Confirmation email sent to @Model.ResidentEmail.</p>
+}
+else
+{
+    <p class="notice error" role="status">Your report is saved. @(Model.ConfirmationEmailStatus == EmailDeliveryStatus.Disabled ? "Email notifications are not configured yet." : "The confirmation email could not be sent.") Keep your reference number.</p>
+}
+<a class="button" asp-action="Track" asp-route-referenceCode="@Model.ReferenceCode">Track this request</a> <a class="text-link" asp-action="Report">Report another problem</a></section>

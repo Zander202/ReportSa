@@ -11,16 +11,19 @@ public class RequestService
     private readonly ApplicationDbContext db;
     private readonly AssignmentService assignments;
     private readonly EmailService email;
+    private readonly MunicipalityDirectory municipalities;
 
-    public RequestService(ApplicationDbContext db, AssignmentService assignments, EmailService email)
+    public RequestService(ApplicationDbContext db, AssignmentService assignments, EmailService email, MunicipalityDirectory? municipalities = null)
     {
         this.db = db;
         this.assignments = assignments;
         this.email = email;
+        this.municipalities = municipalities ?? new MunicipalityDirectory();
     }
 
     public static string NewReference() => "MUN-" + Convert.ToHexString(RandomNumberGenerator.GetBytes(12));
     protected virtual string GenerateReference() => NewReference();
+    private static byte[] NewVersion() => RandomNumberGenerator.GetBytes(16);
 
     private static bool IsValidEmail(string? value) =>
         !string.IsNullOrWhiteSpace(value) && value.Trim().Length <= 254 &&
@@ -31,10 +34,15 @@ public class RequestService
         if (form.Category is null || !Enum.IsDefined(form.Category.Value)
             || string.IsNullOrWhiteSpace(form.Location) || form.Location.Trim().Length > 200
             || form.Description?.Length > 1000
-            || !IsValidEmail(form.ResidentEmail))
+            || !IsValidEmail(form.ResidentEmail)
+            || !double.IsFinite(form.Latitude ?? 0) || !double.IsFinite(form.Longitude ?? 0)
+            || form.Latitude is < -90 or > 90 || form.Longitude is < -180 or > 180
+            || form.Latitude.HasValue != form.Longitude.HasValue)
             throw new ArgumentException("Invalid report.");
 
         var assignment = assignments.For(form.Category.Value);
+        var municipality = municipalities.Find(form.MunicipalityCode)
+            ?? throw new ArgumentException("Select a valid municipality.");
 
         for (var attempt = 0; attempt < 5; attempt++)
         {
@@ -46,20 +54,26 @@ public class RequestService
                 Location = form.Location.Trim(),
                 Description = string.IsNullOrWhiteSpace(form.Description) ? null : form.Description.Trim(),
                 ResidentEmail = form.ResidentEmail.Trim(),
-                // ASSUMPTION: adjust these two lines to match what AssignmentService.For() returns
+                MunicipalityCode = municipality.Code,
+                MunicipalityName = municipality.Label,
+                Latitude = form.Latitude,
+                Longitude = form.Longitude,
+                EstimatedCompletionAt = AssignmentService.Estimate(form.Category.Value, now),
                 AssignedRole = assignment.Role,
                 AssignedPerson = assignment.Person,
                 ReportedAt = now,
                 LastUpdatedAt = now,
                 Priority = Priority.Normal,
                 Status = RequestStatus.Submitted,
+                RowVersion = db.Database.IsNpgsql() ? NewVersion() : [],
                 History = [new StatusHistory { Status = RequestStatus.Submitted, ChangedAt = now }]
             };
             db.Requests.Add(request);
             try
             {
                 await db.SaveChangesAsync();
-                await email.SendRequestReceivedAsync(request);
+                request.ConfirmationEmailStatus = await email.SendRequestReceivedAsync(request);
+                await db.SaveChangesAsync();
                 return request;
             }
             catch (DbUpdateException ex)
@@ -99,13 +113,18 @@ public class RequestService
         db.Entry(request).Property(x => x.RowVersion).OriginalValue = version;
         var assignedRole = form.AssignedRole.Trim();
         var assignedPerson = form.AssignedPerson?.Trim() ?? "";
-        if (request.Status == form.Status && request.Priority == form.Priority && request.AssignedRole == assignedRole && request.AssignedPerson == assignedPerson) return;
+        var estimate = form.EstimatedCompletionLocal is { } local
+            ? new DateTimeOffset(DateTime.SpecifyKind(local, DateTimeKind.Unspecified), TimeSpan.FromHours(2)).ToUniversalTime()
+            : request.EstimatedCompletionAt;
+        if (request.Status == form.Status && request.Priority == form.Priority && request.AssignedRole == assignedRole && request.AssignedPerson == assignedPerson && request.EstimatedCompletionAt == estimate) return;
         var now = DateTimeOffset.UtcNow;
         var statusChanged = request.Status != form.Status;
         if (statusChanged) request.History.Add(new() { Status = form.Status, ChangedAt = now });
         request.Status = form.Status; request.Priority = form.Priority; request.LastUpdatedAt = now;
         request.AssignedRole = assignedRole; request.AssignedPerson = assignedPerson;
+        request.EstimatedCompletionAt = estimate;
+        if (db.Database.IsNpgsql()) request.RowVersion = NewVersion();
         await db.SaveChangesAsync();
-        if (statusChanged) await email.SendStatusUpdateAsync(request);   // only email when progress changes
+        await email.SendStatusUpdateAsync(request);
     }
 }

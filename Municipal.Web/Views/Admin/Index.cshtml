@@ -1,57 +1,105 @@
-@model ReportForm
+@model IReadOnlyList<ProblemRequest>
 @{
-    ViewData["Title"] = "Report a Problem";
+    ViewData["Title"] = "Admin Requests";
+    var selectedCategory = ViewBag.Category as Category?;
+    var selectedPriority = ViewBag.Priority as Priority?;
+    var selectedStatus = ViewBag.Status as RequestStatus?;
+    var selectedSort = ViewBag.Sort as string ?? "priority";
 }
 
-<div class="two-column">
-    <!-- Left Column: Context & Instructions -->
-    <section class="intro">
-        <p class="eyebrow">A better neighbourhood starts here</p>
-        <h1>Report a local problem.</h1>
-        <p class="lead">Tell us what needs attention. Keep your reference code to follow the request as it moves through the municipal workflow.</p>
-
-        <div class="info-card">
-            <h2>How it works</h2>
-            <ol class="how">
-                <li>Describe the problem and its location.</li>
-                <li>Save your unique reference code.</li>
-                <li>Track status updates whenever you need.</li>
-            </ol>
-        </div>
-        <a asp-controller="Admin"
-           asp-action="CreateUser"
-           class="btn btn-primary">
-            Create User
-        </a>
-        <p class="muted">No resident account required. This student prototype does not provide emergency assistance.</p>
-    </section>
-
-    <!-- Right Column: Interactive Form -->
-    <section class="panel">
-        <h2>Problem details</h2>
-        <p class="muted" style="margin-bottom: 20px;">Category and location are required fields.</p>
-
-        <form asp-action="Report" method="post" novalidate>
-            <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
-
-            <label asp-for="Category"></label>
-            <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()">
-                <option value="">Select a category</option>
-            </select>
-            <span asp-validation-for="Category" class="validation"></span>
-
-            <label asp-for="Location"></label>
-            <input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" />
-            <span asp-validation-for="Location" class="validation"></span>
-
-            <label asp-for="Description"></label>
-            <textarea asp-for="Description" rows="5" maxlength="1000" placeholder="Add details that will help the municipality understand the issue."></textarea>
-            <span asp-validation-for="Description" class="validation"></span>
-            <p class="hint">Up to 1,000 characters. Please avoid personal or sensitive information.</p>
-
-           
-
-            <button type="submit" class="button" style="width: 100%; margin-top: 24px; text-align: center;">Submit problem</button>
-        </form>
-    </section>
+<div class="page-heading">
+    <p class="eyebrow">Municipal administration</p>
+    <h1>Request dashboard</h1>
+    <p class="lead">Review, filter and update reported service delivery problems.</p>
 </div>
+
+<section class="panel">
+    <form method="get" class="track-form">
+        <div>
+            <label for="category">Category</label>
+            <select id="category" name="category">
+                <option value="">All categories</option>
+                @foreach (var category in Enum.GetValues<Category>())
+                {
+                    <option value="@((int)category)" selected="@(selectedCategory == category)">@Labels.CategoryName(category)</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority">
+                <option value="">All priorities</option>
+                @foreach (var priority in Enum.GetValues<Priority>())
+                {
+                    <option value="@((int)priority)" selected="@(selectedPriority == priority)">@priority</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="status">Status</label>
+            <select id="status" name="status">
+                <option value="">All statuses</option>
+                @foreach (var status in Enum.GetValues<RequestStatus>())
+                {
+                    <option value="@((int)status)" selected="@(selectedStatus == status)">@Labels.Status(status)</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="sort">Sort</label>
+            <select id="sort" name="sort">
+                <option value="priority" selected="@(selectedSort == "priority")">Priority</option>
+                <option value="oldest" selected="@(selectedSort == "oldest")">Oldest first</option>
+                <option value="newest" selected="@(selectedSort == "newest")">Newest first</option>
+            </select>
+        </div>
+        <button class="button" type="submit">Apply</button>
+    </form>
+    <p class="hint"><a asp-action="CreateUser">Create administrator user</a></p>
+</section>
+
+<section class="panel result">
+    <div class="result-top">
+        <h2>Requests</h2>
+        <span class="status-badge">@Model.Count total</span>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <p class="muted">No requests match the selected filters.</p>
+    }
+    else
+    {
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Category</th>
+                        <th>Municipality</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned role</th>
+                        <th>Reported</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model)
+                    {
+                        <tr>
+                            <td><span class="reference">@request.ReferenceCode</span></td>
+                            <td>@Labels.CategoryName(request.Category)</td>
+                            <td>@(string.IsNullOrWhiteSpace(request.MunicipalityName) ? "Not recorded" : request.MunicipalityName)</td>
+                            <td>@request.Priority</td>
+                            <td><span class="status-badge">@Labels.Status(request.Status)</span></td>
+                            <td>@request.AssignedRole<br /><span class="muted">@request.AssignedPerson</span></td>
+                            <td>@request.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</td>
+                            <td><a asp-action="Edit" asp-route-id="@request.Id">Manage</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

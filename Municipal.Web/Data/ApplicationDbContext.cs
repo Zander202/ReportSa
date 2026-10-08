@@ -10,8 +10,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder b)
     {
         base.OnModelCreating(b);
-        b.Entity<ProblemRequest>().HasIndex(x => x.ReferenceCode).IsUnique();
-        b.Entity<ProblemRequest>().HasMany(x => x.History).WithOne(x => x.Request).HasForeignKey(x => x.ProblemRequestId).OnDelete(DeleteBehavior.Cascade);
+        var requests = b.Entity<ProblemRequest>();
+        requests.HasIndex(x => x.ReferenceCode).IsUnique();
+        requests.HasMany(x => x.History).WithOne(x => x.Request).HasForeignKey(x => x.ProblemRequestId).OnDelete(DeleteBehavior.Cascade);
+        if (Database.IsNpgsql())
+            requests.Property(x => x.RowVersion).IsConcurrencyToken().ValueGeneratedNever().HasColumnType("bytea");
+        else
+            requests.Property(x => x.RowVersion).IsRowVersion();
         var quoteLeft = Database.IsNpgsql() ? "\"" : "[";
         var quoteRight = Database.IsNpgsql() ? "\"" : "]";
         string Col(string name) => $"{quoteLeft}{name}{quoteRight}";

@@ -1,8 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc;
 namespace Municipal.Web.Models;
 public class ReportForm
 {
+    [Required, StringLength(10), Display(Name="Municipality")] public string MunicipalityCode { get; set; } = "";
+    [Range(-90, 90), ModelBinder(BinderType = typeof(CoordinateModelBinder))] public double? Latitude { get; set; }
+    [Range(-180, 180), ModelBinder(BinderType = typeof(CoordinateModelBinder))] public double? Longitude { get; set; }
     [Required, EnumDataType(typeof(Category))] public Category? Category { get; set; }
     [Required, StringLength(200), Display(Name="Location / address")] public string Location { get; set; } = "";
     [StringLength(1000), Display(Name="Short description (optional)")] public string? Description { get; set; }
@@ -27,4 +31,5 @@ public class UpdateForm
     [Required, StringLength(120)] public string AssignedRole { get; set; } = "";
     [StringLength(120)] public string? AssignedPerson { get; set; }
     [Required] public string RowVersion { get; set; } = "";
+    public DateTime? EstimatedCompletionLocal { get; set; }
 }

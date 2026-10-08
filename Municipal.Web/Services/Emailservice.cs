@@ -9,6 +9,7 @@ public class EmailSettings
     public bool Enabled { get; set; }
     public string Host { get; set; } = "smtp.gmail.com";
     public int Port { get; set; } = 587;
+    public bool EnableSsl { get; set; } = true;
     public string Username { get; set; } = "";
     public string Password { get; set; } = "";
     public string FromAddress { get; set; } = "";
@@ -27,35 +28,44 @@ public class EmailService
         _log = log;
     }
 
-    public Task SendRequestReceivedAsync(ProblemRequest r) =>
+    public Task<EmailDeliveryStatus> SendRequestReceivedAsync(ProblemRequest r) =>
         SendAsync(r.ResidentEmail,
             $"Request received – {r.ReferenceCode}",
             Wrap("Thank you for reporting",
                 $"<p>We have received your <strong>{WebUtility.HtmlEncode(Labels.CategoryName(r.Category))}</strong> report " +
                 $"at <strong>{WebUtility.HtmlEncode(r.Location)}</strong>.</p>" +
                 $"<p>Your reference code is:</p>{Code(r.ReferenceCode)}" +
-                "<p>Keep this code. It is the only way to track your request without an account.</p>",
+                Details(r) + "<p>Keep this code to track your request.</p>",
                 r.ReferenceCode));
 
-    public Task SendStatusUpdateAsync(ProblemRequest r) =>
+    public Task<EmailDeliveryStatus> SendStatusUpdateAsync(ProblemRequest r) =>
         SendAsync(r.ResidentEmail,
             $"Update on {r.ReferenceCode}: {Labels.Status(r.Status)}",
             Wrap("Your request has been updated",
                 $"<p>Reference: {Code(r.ReferenceCode)}</p>" +
                 $"<p>New status: <strong>{Labels.Status(r.Status)}</strong></p>" +
-                (string.IsNullOrWhiteSpace(r.AssignedRole) ? "" :
-                    $"<p>Assigned to: {WebUtility.HtmlEncode(r.AssignedRole)}</p>"),
+                Details(r),
                 r.ReferenceCode));
 
-    private async Task SendAsync(string to, string subject, string html)
+    private static string Details(ProblemRequest r)
     {
-        if (!_settings.Enabled || string.IsNullOrWhiteSpace(to)) return;
+        var eta = r.EstimatedCompletionAt?.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") + " SAST";
+        return $"<p>Municipality: <strong>{WebUtility.HtmlEncode(r.MunicipalityName)}</strong></p>" +
+            $"<p>Assigned person: <strong>{WebUtility.HtmlEncode(r.AssignedPerson)}</strong><br>Team: {WebUtility.HtmlEncode(r.AssignedRole)}</p>" +
+            $"<p>Estimated completion: <strong>{(r.EstimatedCompletionAt.HasValue ? eta : "Awaiting estimate")}</strong></p>" +
+            "<p style=\"font-size:12px;color:#54616f\">Completion times are provisional prototype estimates, not confirmed municipal commitments.</p>";
+    }
+
+    private async Task<EmailDeliveryStatus> SendAsync(string to, string subject, string html)
+    {
+        if (!_settings.Enabled || string.IsNullOrWhiteSpace(to) || to.EndsWith(".invalid", StringComparison.OrdinalIgnoreCase))
+            return EmailDeliveryStatus.Disabled;
         try
         {
             using var client = new SmtpClient(_settings.Host, _settings.Port)
             {
                 Credentials = new NetworkCredential(_settings.Username, _settings.Password),
-                EnableSsl = true
+                EnableSsl = _settings.EnableSsl
             };
             using var msg = new MailMessage
             {
@@ -65,12 +75,15 @@ public class EmailService
                 IsBodyHtml = true
             };
             msg.To.Add(to);
-            await client.SendMailAsync(msg);
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            await client.SendMailAsync(msg, timeout.Token);
+            return EmailDeliveryStatus.Sent;
         }
         catch (Exception ex)
         {
             // Never break the resident's request because an email failed
-            _log.LogWarning(ex, "Could not send email to {To}", to);
+            _log.LogWarning(ex, "Report notification could not be sent.");
+            return EmailDeliveryStatus.Failed;
         }
     }
 
@@ -82,7 +95,7 @@ public class EmailService
     private string Wrap(string title, string body, string reference)
     {
         var link = string.IsNullOrWhiteSpace(_settings.TrackUrl) ? "" :
-            $"<p><a href=\"{_settings.TrackUrl}\" style=\"background:#007749;color:#fff;padding:10px 20px;" +
+            $"<p><a href=\"{WebUtility.HtmlEncode(_settings.TrackUrl + (_settings.TrackUrl.Contains('?') ? "&" : "?") + "referenceCode=" + Uri.EscapeDataString(reference))}\" style=\"background:#007749;color:#fff;padding:10px 20px;" +
             "border-radius:6px;text-decoration:none;font-weight:700\">Track your request</a></p>";
         return $@"<div style=""font-family:Segoe UI,Arial,sans-serif;max-width:560px;margin:auto;border:1px solid #dbe2e8;border-radius:10px;overflow:hidden"">
 <div style=""background:#003d27;color:#fff;padding:14px 20px;font-size:12px;letter-spacing:1px;text-transform:uppercase"">Republic of South Africa · Municipal Connect</div>

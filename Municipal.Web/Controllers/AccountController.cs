@@ -28,7 +28,7 @@ public class AccountController : Controller
     {
         if (!ModelState.IsValid) return View(form);
 
-        var email = form.Email?.Trim();
+        var email = form.Email.Trim();
         try
         {
             var user = await _users.FindByEmailAsync(email);

@@ -241,14 +241,36 @@ namespace Municipal.Web.Data.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
+                    b.Property<int>("ConfirmationEmailStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
+                    b.Property<DateTimeOffset?>("EstimatedCompletionAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<DateTimeOffset>("LastUpdatedAt")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("float");
+
                     b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("float");
+
+                    b.Property<string>("MunicipalityCode")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("MunicipalityName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");

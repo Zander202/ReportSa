@@ -10,10 +10,18 @@ builder.Services.AddControllersWithViews(o =>
     o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
+var provider = builder.Configuration["Database:Provider"] ?? "Postgres";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(connection);
+    if (provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+    {
+        options.UseSqlServer(connection);
+    }
+    else
+    {
+        options.UseNpgsql(connection);
+    }
 });
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
@@ -39,6 +47,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 });
 
 builder.Services.AddSingleton<AssignmentService>();
+builder.Services.AddSingleton<MunicipalityDirectory>();
 builder.Services.AddSingleton<EmailService>();
 builder.Services.AddScoped<RequestService>();
 

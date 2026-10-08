@@ -123,6 +123,9 @@ public class SqlFixture : IAsyncLifetime
                             "environment",
                             "Testing")
                         .UseSetting(
+                            "Database:Provider",
+                            "SqlServer")
+                        .UseSetting(
                             "ConnectionStrings:DefaultConnection",
                             connection.ConnectionString);
                 });
@@ -339,6 +342,9 @@ public class SqlWorkflowTests(SqlFixture fixture)
 
 
         data["Category"] = "0";
+        data["MunicipalityCode"] = "CPT";
+        data["Latitude"] = "-33.9249";
+        data["Longitude"] = "18.4241";
 
         data["Location"] =
             "[FICTIONAL TEST] 24 Example Street";
@@ -403,6 +409,13 @@ public class SqlWorkflowTests(SqlFixture fixture)
 
             Assert.Single(
                 saved.History);
+            Assert.Equal("CPT", saved.MunicipalityCode);
+            Assert.Contains("Cape Town", saved.MunicipalityName);
+            Assert.Contains("(demo staff)", saved.AssignedPerson);
+            Assert.Equal(saved.ReportedAt.AddHours(120), saved.EstimatedCompletionAt);
+            Assert.Equal(-33.9249, saved.Latitude);
+            Assert.Equal(18.4241, saved.Longitude);
+            Assert.Equal(EmailDeliveryStatus.Disabled, saved.ConfirmationEmailStatus);
 
             Assert.Equal(
                 "Roads maintenance team",
@@ -748,6 +761,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
                 new ReportForm
                 {
                     Category = Category.Other,
+                    MunicipalityCode = "CPT",
 
                     Location =
                         "[FICTIONAL TEST] Workflow validation",
@@ -878,6 +892,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
                 new ReportForm
                 {
                     Category = Category.Other,
+                    MunicipalityCode = "CPT",
 
                     Location =
                         "[FICTIONAL TEST] Original",
@@ -897,6 +912,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
                 new ReportForm
                 {
                     Category = Category.Other,
+                    MunicipalityCode = "CPT",
 
                     Location =
                         "[FICTIONAL TEST] Retry",
@@ -1011,6 +1027,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
                     new ReportForm
                     {
                         Category = Category.WaterLeak,
+                        MunicipalityCode = "CPT",
 
                         Location =
                             "[FICTIONAL TEST] Older",
@@ -1031,6 +1048,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
                     new ReportForm
                     {
                         Category = Category.WaterLeak,
+                        MunicipalityCode = "CPT",
 
                         Location =
                             "[FICTIONAL TEST] Urgent",

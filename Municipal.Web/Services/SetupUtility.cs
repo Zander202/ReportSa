@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Municipal.Web.Data;
 using Municipal.Web.Models;
 namespace Municipal.Web.Services;
@@ -10,8 +12,9 @@ public static class SetupUtility
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        if (db.Database.IsNpgsql()) await db.Database.EnsureCreatedAsync();
+        if (db.Database.IsNpgsql()) await EnsurePostgresTablesAsync(db);
         else await db.Database.MigrateAsync();
+        await BackfillAssignmentsAsync(db, scope.ServiceProvider.GetRequiredService<AssignmentService>());
 
         if (demo)
         {
@@ -23,6 +26,7 @@ public static class SetupUtility
                 var r = await service.SubmitAsync(new()
                 {
                     Category = category,
+                    MunicipalityCode = "CPT",
                     Location = location,
                     Description = "Fictional student demonstration request.",
                     ResidentEmail = "demo@example.invalid"   // EmailService skips .invalid addresses
@@ -53,6 +57,59 @@ public static class SetupUtility
         }
         if (!await users.IsInRoleAsync(user, "Administrator")) Ensure(await users.AddToRoleAsync(user, "Administrator"));
         Console.WriteLine("Database migrated and administrator provisioned. Existing passwords are never overwritten.");
+    }
+
+    private static async Task EnsurePostgresTablesAsync(ApplicationDbContext db)
+    {
+        await db.Database.EnsureCreatedAsync();
+
+        // Supabase already has service tables, so EnsureCreated can skip the app schema.
+        var expectedTables = db.Model.GetEntityTypes()
+            .Select(entity => entity.GetTableName()!)
+            .ToHashSet(StringComparer.Ordinal);
+        var existingTables = new HashSet<string>(StringComparer.Ordinal);
+        await db.Database.OpenConnectionAsync();
+        try
+        {
+            await using var command = db.Database.GetDbConnection().CreateCommand();
+            command.CommandText = "SELECT table_name FROM information_schema.tables WHERE table_schema = current_schema()";
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync()) existingTables.Add(reader.GetString(0));
+        }
+        finally
+        {
+            await db.Database.CloseConnectionAsync();
+        }
+
+        if (!expectedTables.IsSubsetOf(existingTables) && expectedTables.Overlaps(existingTables))
+            throw new InvalidOperationException("The application database schema is incomplete. Missing tables: " +
+                string.Join(", ", expectedTables.Except(existingTables)) + ". Existing tables were preserved.");
+
+        if (!expectedTables.IsSubsetOf(existingTables))
+            await db.GetService<IRelationalDatabaseCreator>().CreateTablesAsync();
+
+        await db.Database.ExecuteSqlRawAsync("""
+            ALTER TABLE "Requests"
+                ADD COLUMN IF NOT EXISTS "MunicipalityCode" character varying(10) NOT NULL DEFAULT '',
+                ADD COLUMN IF NOT EXISTS "MunicipalityName" character varying(200) NOT NULL DEFAULT '',
+                ADD COLUMN IF NOT EXISTS "Latitude" double precision,
+                ADD COLUMN IF NOT EXISTS "Longitude" double precision,
+                ADD COLUMN IF NOT EXISTS "EstimatedCompletionAt" timestamp with time zone,
+                ADD COLUMN IF NOT EXISTS "ConfirmationEmailStatus" integer NOT NULL DEFAULT 0;
+            """);
+    }
+
+    private static async Task BackfillAssignmentsAsync(ApplicationDbContext db, AssignmentService assignments)
+    {
+        var requests = await db.Requests.Where(x => x.AssignedPerson == "" || x.AssignedPerson == "To be assigned" || x.EstimatedCompletionAt == null).ToListAsync();
+        foreach (var request in requests)
+        {
+            if (string.IsNullOrWhiteSpace(request.AssignedPerson) || request.AssignedPerson == "To be assigned")
+                request.AssignedPerson = assignments.For(request.Category).Person;
+            request.EstimatedCompletionAt ??= AssignmentService.Estimate(request.Category, request.ReportedAt);
+            if (db.Database.IsNpgsql()) request.RowVersion = System.Security.Cryptography.RandomNumberGenerator.GetBytes(16);
+        }
+        await db.SaveChangesAsync();
     }
 
     private static void Ensure(IdentityResult result)

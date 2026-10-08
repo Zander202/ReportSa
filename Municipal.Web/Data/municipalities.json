@@ -1,0 +1,1544 @@
+[
+  {
+    "Code": "DC44",
+    "Name": "Alfred Nzo",
+    "Province": "Eastern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "EC124",
+    "Name": "Amahlathi",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC12",
+    "Name": "Amathole",
+    "Province": "Eastern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "EC102",
+    "Name": "Blue Crane Route",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "BUF",
+    "Name": "Buffalo City",
+    "Province": "Eastern Cape",
+    "Type": "A"
+  },
+  {
+    "Code": "DC13",
+    "Name": "Chris Hani",
+    "Province": "Eastern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "EC101",
+    "Name": "Dr Beyers Naude",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC137",
+    "Name": "Dr. A.B. Xuma",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC141",
+    "Name": "Elundini",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC136",
+    "Name": "Emalahleni (EC)",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC139",
+    "Name": "Enoch Mgijima",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC123",
+    "Name": "Great Kei",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC131",
+    "Name": "Inxuba Yethemba",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC14",
+    "Name": "Joe Gqabi",
+    "Province": "Eastern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "EC157",
+    "Name": "King Sabata Dalindyebo",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC109",
+    "Name": "Kou-Kamma",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC108",
+    "Name": "Kouga",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC156",
+    "Name": "Kumkani Mhlontlo",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC104",
+    "Name": "Makana",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC441",
+    "Name": "Matatiele",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC121",
+    "Name": "Mbhashe",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC122",
+    "Name": "Mnquma",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC105",
+    "Name": "Ndlambe",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NMA",
+    "Name": "Nelson Mandela Bay",
+    "Province": "Eastern Cape",
+    "Type": "A"
+  },
+  {
+    "Code": "EC126",
+    "Name": "Ngqushwa",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC153",
+    "Name": "Ngquza Hills",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC444",
+    "Name": "Ntabankulu",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC155",
+    "Name": "Nyandeni",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC15",
+    "Name": "O R Tambo",
+    "Province": "Eastern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "EC154",
+    "Name": "Port St Johns",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC129",
+    "Name": "Raymond Mhlaba",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC138",
+    "Name": "Sakhisizwe",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC10",
+    "Name": "Sarah Baartman",
+    "Province": "Eastern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "EC142",
+    "Name": "Senqu",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC106",
+    "Name": "Sundays River Valley",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC442",
+    "Name": "Umzimvubu",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC135",
+    "Name": "Vuyisile Mini",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC145",
+    "Name": "Walter Sisulu",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "EC443",
+    "Name": "Winnie Madikizela-Mandela",
+    "Province": "Eastern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "FS192",
+    "Name": "Dihlabeng",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "DC20",
+    "Name": "Fezile Dabi",
+    "Province": "Free State",
+    "Type": "C"
+  },
+  {
+    "Code": "FS162",
+    "Name": "Kopanong",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "DC18",
+    "Name": "Lejweleputswa",
+    "Province": "Free State",
+    "Type": "C"
+  },
+  {
+    "Code": "FS161",
+    "Name": "Letsemeng",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS205",
+    "Name": "Mafube",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS194",
+    "Name": "Maluti-a-Phofung",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "MAN",
+    "Name": "Mangaung",
+    "Province": "Free State",
+    "Type": "A"
+  },
+  {
+    "Code": "FS196",
+    "Name": "Mantsopa",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS181",
+    "Name": "Masilonyana",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS184",
+    "Name": "Matjhabeng",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS204",
+    "Name": "Metsimaholo",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS163",
+    "Name": "Mohokare",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS201",
+    "Name": "Moqhaka",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS185",
+    "Name": "Nala",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS203",
+    "Name": "Ngwathe",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS193",
+    "Name": "Nketoana",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS195",
+    "Name": "Phumelela",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS191",
+    "Name": "Setsoto",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "DC19",
+    "Name": "Thabo Mofutsanyana",
+    "Province": "Free State",
+    "Type": "C"
+  },
+  {
+    "Code": "FS182",
+    "Name": "Tokologo",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "FS183",
+    "Name": "Tswelopele",
+    "Province": "Free State",
+    "Type": "B"
+  },
+  {
+    "Code": "DC16",
+    "Name": "Xhariep",
+    "Province": "Free State",
+    "Type": "C"
+  },
+  {
+    "Code": "EKU",
+    "Name": "City of Ekurhuleni",
+    "Province": "Gauteng",
+    "Type": "A"
+  },
+  {
+    "Code": "JHB",
+    "Name": "City of Johannesburg",
+    "Province": "Gauteng",
+    "Type": "A"
+  },
+  {
+    "Code": "TSH",
+    "Name": "City of Tshwane",
+    "Province": "Gauteng",
+    "Type": "A"
+  },
+  {
+    "Code": "GT421",
+    "Name": "Emfuleni",
+    "Province": "Gauteng",
+    "Type": "B"
+  },
+  {
+    "Code": "GT423",
+    "Name": "Lesedi",
+    "Province": "Gauteng",
+    "Type": "B"
+  },
+  {
+    "Code": "GT484",
+    "Name": "Merafong City",
+    "Province": "Gauteng",
+    "Type": "B"
+  },
+  {
+    "Code": "GT422",
+    "Name": "Midvaal",
+    "Province": "Gauteng",
+    "Type": "B"
+  },
+  {
+    "Code": "GT481",
+    "Name": "Mogale City",
+    "Province": "Gauteng",
+    "Type": "B"
+  },
+  {
+    "Code": "GT485",
+    "Name": "Rand West City",
+    "Province": "Gauteng",
+    "Type": "B"
+  },
+  {
+    "Code": "DC42",
+    "Name": "Sedibeng",
+    "Province": "Gauteng",
+    "Type": "C"
+  },
+  {
+    "Code": "DC48",
+    "Name": "West Rand",
+    "Province": "Gauteng",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN263",
+    "Name": "Abaqulusi",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN238",
+    "Name": "Alfred Duma",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC25",
+    "Name": "Amajuba",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN254",
+    "Name": "Dannhauser",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN436",
+    "Name": "Dr Nkosazana Dlamini Zuma",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN261",
+    "Name": "eDumbe",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN253",
+    "Name": "Emadlangeni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN241",
+    "Name": "Endumeni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "ETH",
+    "Name": "eThekwini",
+    "Province": "Kwazulu-Natal",
+    "Type": "A"
+  },
+  {
+    "Code": "KZN433",
+    "Name": "Greater Kokstad",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC43",
+    "Name": "Harry Gwala",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN276",
+    "Name": "Hlabisa Big Five",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC29",
+    "Name": "iLembe",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN224",
+    "Name": "Impendle",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN237",
+    "Name": "Inkosi Langalibalele",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN434",
+    "Name": "Johannes Phumani Phungula",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN272",
+    "Name": "Jozini",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC28",
+    "Name": "King Cetshwayo",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN292",
+    "Name": "KwaDukuza",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN291",
+    "Name": "Mandeni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN294",
+    "Name": "Maphumulo",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN281",
+    "Name": "Mfolozi",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN226",
+    "Name": "Mkhambathini",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN223",
+    "Name": "Mpofana",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN244",
+    "Name": "Msinga",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN225",
+    "Name": "Msunduzi",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN285",
+    "Name": "Mthonjaneni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN275",
+    "Name": "Mtubatuba",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN293",
+    "Name": "Ndwedwe",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN252",
+    "Name": "Newcastle",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN286",
+    "Name": "Nkandla",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN265",
+    "Name": "Nongoma",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN242",
+    "Name": "Nquthu",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN235",
+    "Name": "Okhahlamba",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN216",
+    "Name": "Ray Nkonyeni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN227",
+    "Name": "Richmond",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC21",
+    "Name": "Ugu",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN266",
+    "Name": "Ulundi",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN212",
+    "Name": "Umdoni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC22",
+    "Name": "uMgungundlovu",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN271",
+    "Name": "Umhlabuyalingana",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN282",
+    "Name": "uMhlathuze",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC27",
+    "Name": "Umkhanyakude",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN284",
+    "Name": "uMlalazi",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN222",
+    "Name": "uMngeni",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN221",
+    "Name": "uMshwathi",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN214",
+    "Name": "uMuziwabantu",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN245",
+    "Name": "Umvoti",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN435",
+    "Name": "Umzimkhulu",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC24",
+    "Name": "Umzinyathi",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "KZN213",
+    "Name": "Umzumbe",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "KZN262",
+    "Name": "uPhongolo",
+    "Province": "Kwazulu-Natal",
+    "Type": "B"
+  },
+  {
+    "Code": "DC23",
+    "Name": "Uthukela",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "DC26",
+    "Name": "Zululand",
+    "Province": "Kwazulu-Natal",
+    "Type": "C"
+  },
+  {
+    "Code": "LIM334",
+    "Name": "Ba-Phalaborwa",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM366",
+    "Name": "Bela Bela",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM351",
+    "Name": "Blouberg",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "DC35",
+    "Name": "Capricorn",
+    "Province": "Limpopo",
+    "Type": "C"
+  },
+  {
+    "Code": "LIM345",
+    "Name": "Collins Chabane",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM472",
+    "Name": "Elias Motsoaledi",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM471",
+    "Name": "Ephraim Mogale",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM331",
+    "Name": "Greater Giyani",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM332",
+    "Name": "Greater Letaba",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM333",
+    "Name": "Greater Tzaneen",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM355",
+    "Name": "Lepelle-Nkumpi",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM362",
+    "Name": "Lephalale",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM344",
+    "Name": "Makhado",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM473",
+    "Name": "Makhuduthamaga",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM335",
+    "Name": "Maruleng",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM368",
+    "Name": "Modimolle-Mookgopong",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM367",
+    "Name": "Mogalakwena",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM353",
+    "Name": "Molemole",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "DC33",
+    "Name": "Mopani",
+    "Province": "Limpopo",
+    "Type": "C"
+  },
+  {
+    "Code": "LIM341",
+    "Name": "Musina",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM354",
+    "Name": "Polokwane",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "DC47",
+    "Name": "Sekhukhune",
+    "Province": "Limpopo",
+    "Type": "C"
+  },
+  {
+    "Code": "LIM361",
+    "Name": "Thabazimbi",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM343",
+    "Name": "Thulamela",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "LIM476",
+    "Name": "Tubatse Fetakgomo",
+    "Province": "Limpopo",
+    "Type": "B"
+  },
+  {
+    "Code": "DC34",
+    "Name": "Vhembe",
+    "Province": "Limpopo",
+    "Type": "C"
+  },
+  {
+    "Code": "DC36",
+    "Name": "Waterberg",
+    "Province": "Limpopo",
+    "Type": "C"
+  },
+  {
+    "Code": "MP301",
+    "Name": "Albert Luthuli",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP325",
+    "Name": "Bushbuckridge",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP326",
+    "Name": "City of Mbombela",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP306",
+    "Name": "Dipaleseng",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP316",
+    "Name": "Dr J.S. Moroka",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "DC32",
+    "Name": "Ehlanzeni",
+    "Province": "Mpumalanga",
+    "Type": "C"
+  },
+  {
+    "Code": "MP314",
+    "Name": "Emakhazeni",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP312",
+    "Name": "Emalahleni (MP)",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "DC30",
+    "Name": "Gert Sibande",
+    "Province": "Mpumalanga",
+    "Type": "C"
+  },
+  {
+    "Code": "MP307",
+    "Name": "Govan Mbeki",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP305",
+    "Name": "Lekwa",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP303",
+    "Name": "Mkhondo",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP302",
+    "Name": "Msukaligwa",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "DC31",
+    "Name": "Nkangala",
+    "Province": "Mpumalanga",
+    "Type": "C"
+  },
+  {
+    "Code": "MP324",
+    "Name": "Nkomazi",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP304",
+    "Name": "Pixley Ka Seme (MP)",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP313",
+    "Name": "Steve Tshwete",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP321",
+    "Name": "Thaba Chweu",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP315",
+    "Name": "Thembisile Hani",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "MP311",
+    "Name": "Victor Khanye",
+    "Province": "Mpumalanga",
+    "Type": "B"
+  },
+  {
+    "Code": "DC37",
+    "Name": "Bojanala Platinum",
+    "Province": "North West",
+    "Type": "C"
+  },
+  {
+    "Code": "NW403",
+    "Name": "City of Matlosana",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW384",
+    "Name": "Ditsobotla",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "DC40",
+    "Name": "Dr Kenneth Kaunda",
+    "Province": "North West",
+    "Type": "C"
+  },
+  {
+    "Code": "DC39",
+    "Name": "Dr Ruth Segomotsi Mompati",
+    "Province": "North West",
+    "Type": "C"
+  },
+  {
+    "Code": "NW394",
+    "Name": "Greater Taung",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW405",
+    "Name": "J B Marks",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW397",
+    "Name": "Kagisano-Molopo",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW374",
+    "Name": "Kgetlengrivier",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW396",
+    "Name": "Lekwa-Teemane",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW372",
+    "Name": "Madibeng",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW383",
+    "Name": "Mafikeng",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW393",
+    "Name": "Mamusa",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW404",
+    "Name": "Maquassi Hills",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW371",
+    "Name": "Moretele",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW375",
+    "Name": "Moses Kotane",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW392",
+    "Name": "Naledi (NW)",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "DC38",
+    "Name": "Ngaka Modiri Molema",
+    "Province": "North West",
+    "Type": "C"
+  },
+  {
+    "Code": "NW385",
+    "Name": "Ramotshere Moiloa",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW381",
+    "Name": "Ratlou",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW373",
+    "Name": "Rustenburg",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NW382",
+    "Name": "Tswaing",
+    "Province": "North West",
+    "Type": "B"
+  },
+  {
+    "Code": "NC082",
+    "Name": "!Kai! Garib",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC084",
+    "Name": "!Kheis",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC087",
+    "Name": "Dawid Kruiper",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC092",
+    "Name": "Dikgatlong",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC073",
+    "Name": "Emthanjeni",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC9",
+    "Name": "Frances Baard",
+    "Province": "Northern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "NC452",
+    "Name": "Ga-Segonyana",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC453",
+    "Name": "Gamagara",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC065",
+    "Name": "Hantam",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC451",
+    "Name": "Joe Morolong",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC45",
+    "Name": "John Taolo Gaetsewe",
+    "Province": "Northern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "NC064",
+    "Name": "Kamiesberg",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC074",
+    "Name": "Kareeberg",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC066",
+    "Name": "Karoo Hoogland",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC086",
+    "Name": "Kgatelopele",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC067",
+    "Name": "Khai-Ma",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC093",
+    "Name": "Magareng",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC062",
+    "Name": "Nama Khoi",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC6",
+    "Name": "Namakwa",
+    "Province": "Northern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "NC094",
+    "Name": "Phokwane",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC7",
+    "Name": "Pixley Ka Seme (NC)",
+    "Province": "Northern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "NC075",
+    "Name": "Renosterberg",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC061",
+    "Name": "Richtersveld",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC078",
+    "Name": "Siyancuma",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC077",
+    "Name": "Siyathemba",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC091",
+    "Name": "Sol Plaatje",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC076",
+    "Name": "Thembelihle",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC085",
+    "Name": "Tsantsabane",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC071",
+    "Name": "Ubuntu",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "NC072",
+    "Name": "Umsobomvu",
+    "Province": "Northern Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC8",
+    "Name": "Z F Mgcawu",
+    "Province": "Northern Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "WC053",
+    "Name": "Beaufort West",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC013",
+    "Name": "Bergrivier",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC047",
+    "Name": "Bitou",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC025",
+    "Name": "Breede Valley",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC033",
+    "Name": "Cape Agulhas",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "CPT",
+    "Name": "Cape Town",
+    "Province": "Western Cape",
+    "Type": "A"
+  },
+  {
+    "Code": "DC2",
+    "Name": "Cape Winelands DM",
+    "Province": "Western Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "WC012",
+    "Name": "Cederberg",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC5",
+    "Name": "Central Karoo",
+    "Province": "Western Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "WC023",
+    "Name": "Drakenstein",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC4",
+    "Name": "Garden Route",
+    "Province": "Western Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "WC044",
+    "Name": "George",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC042",
+    "Name": "Hessequa",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC041",
+    "Name": "Kannaland",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC048",
+    "Name": "Knysna",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC051",
+    "Name": "Laingsburg",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC026",
+    "Name": "Langeberg",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC011",
+    "Name": "Matzikama",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC043",
+    "Name": "Mossel Bay",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC045",
+    "Name": "Oudtshoorn",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC3",
+    "Name": "Overberg",
+    "Province": "Western Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "WC032",
+    "Name": "Overstrand",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC052",
+    "Name": "Prince Albert",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC014",
+    "Name": "Saldanha Bay",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC024",
+    "Name": "Stellenbosch",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC015",
+    "Name": "Swartland",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC034",
+    "Name": "Swellendam",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "WC031",
+    "Name": "Theewaterskloof",
+    "Province": "Western Cape",
+    "Type": "B"
+  },
+  {
+    "Code": "DC1",
+    "Name": "West Coast",
+    "Province": "Western Cape",
+    "Type": "C"
+  },
+  {
+    "Code": "WC022",
+    "Name": "Witzenberg",
+    "Province": "Western Cape",
+    "Type": "B"
+  }
+]

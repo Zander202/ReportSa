@@ -46,6 +46,48 @@
         syncTiles();
     }
 
+    const locateButton = document.getElementById('locate-button');
+    const locationInput = document.getElementById('Location');
+    const latitudeInput = document.getElementById('Latitude');
+    const longitudeInput = document.getElementById('Longitude');
+    const locationFeedback = document.getElementById('location-feedback');
+    if (locateButton && locationInput) {
+        let detectedLocation = '';
+        locationInput.addEventListener('input', () => {
+            latitudeInput.value = '';
+            longitudeInput.value = '';
+            locationFeedback.textContent = '';
+        });
+        locateButton.addEventListener('click', () => {
+            if (!navigator.geolocation) {
+                locationFeedback.textContent = 'Location is unavailable. Enter the address manually.';
+                return;
+            }
+            const previousLocation = locationInput.value;
+            locateButton.disabled = true;
+            locationFeedback.textContent = 'Finding your location...';
+            navigator.geolocation.getCurrentPosition(position => {
+                locateButton.disabled = false;
+                if (locationInput.value !== previousLocation) {
+                    locationFeedback.textContent = 'Your typed address was kept. Select location again to attach coordinates.';
+                    return;
+                }
+                latitudeInput.value = position.coords.latitude.toFixed(6);
+                longitudeInput.value = position.coords.longitude.toFixed(6);
+                if (!locationInput.value.trim() || locationInput.value === detectedLocation) {
+                    detectedLocation = `GPS: ${latitudeInput.value}, ${longitudeInput.value}`;
+                    locationInput.value = detectedLocation;
+                }
+                locationFeedback.textContent = `Location attached (accurate to approximately ${Math.round(position.coords.accuracy)} m).`;
+            }, error => {
+                locateButton.disabled = false;
+                locationFeedback.textContent = error.code === 1
+                    ? 'Location permission was declined. Enter the address manually.'
+                    : 'Could not find your location. Try again or enter the address manually.';
+            }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
+        });
+    }
+
     // ---- Description character counter ----
     const desc = document.getElementById('Description');
     const count = document.getElementById('char-count');
