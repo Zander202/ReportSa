@@ -1,37 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="theme-color" content="#087f66" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#1a7a4a" />
     <title>@ViewData["Title"] | ReportSa</title>
-    <link rel="icon" href="~/images/south-africa-flag.svg" /><link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" href="~/images/south-africa-flag.svg" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/polish.css" asp-append-version="true" />
     <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
-    <div class="national-bar"><div class="national-inner"><span><img src="~/images/south-africa-flag.svg" alt="South African flag" width="27" height="18" />Republic of South Africa</span><span>Municipal services <span class="bar-divider">/</span> Student project</span></div></div>
-    <header class="site-header"><div class="nav-wrap">
-        <a class="brand" asp-controller="Requests" asp-action="Report"><img class="coa" src="~/images/south-africa-coat-of-arms.svg" alt="South African coat of arms" width="46" height="59" /><div class="brand-text"><span class="dept">Report<span>Sa</span></span><span class="tagline">Better neighbourhoods, together.</span></div></a>
-        <button class="menu-toggle icon-button" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="main-nav"><i data-lucide="menu" aria-hidden="true"></i></button>
-        <nav id="main-nav" aria-label="Main navigation">
-            <a asp-controller="Requests" asp-action="Report"><i data-lucide="circle-plus" aria-hidden="true"></i>Report a problem</a><a asp-controller="Requests" asp-action="Track"><i data-lucide="search" aria-hidden="true"></i>Track a request</a>
-            @if (User.IsInRole("Administrator"))
-            {
-                <a asp-controller="Admin" asp-action="Index"><i data-lucide="layout-list" aria-hidden="true"></i>Admin requests</a><form asp-controller="Account" asp-action="Logout" method="post"><button class="nav-button" type="submit"><i data-lucide="log-out" aria-hidden="true"></i>Log out</button></form>
-            }
-            else
-            {
-                <a class="cta" asp-controller="Account" asp-action="Login"><i data-lucide="shield" aria-hidden="true"></i>Admin login</a>
-            }
-        </nav>
-    </div></header>
+
+    <div class="national-bar" role="banner" aria-label="Government identity">
+        <div class="national-inner">
+            <span>
+                <img src="~/images/south-africa-flag.svg" alt="South African flag" width="27" height="18" />
+                Republic of South Africa
+            </span>
+            <span>Municipal services <span class="bar-divider">/</span> Student project</span>
+        </div>
+    </div>
+
+    <header class="site-header">
+        <div class="nav-wrap">
+            <a class="brand" asp-controller="Requests" asp-action="Report" aria-label="ReportSa home">
+                <img class="coa" src="~/images/south-africa-coat-of-arms.svg" alt="South African coat of arms" width="46" height="59" />
+                <div class="brand-text">
+                    <span class="dept">Report<span>Sa</span></span>
+                    <span class="tagline">Better neighbourhoods, together.</span>
+                </div>
+            </a>
+
+            <button class="menu-toggle icon-button" type="button"
+                    aria-label="Toggle navigation menu"
+                    aria-expanded="false"
+                    aria-controls="main-nav">
+                <i data-lucide="menu" aria-hidden="true"></i>
+            </button>
+
+            <nav id="main-nav" aria-label="Main navigation">
+                <a asp-controller="Requests" asp-action="Report">
+                    <i data-lucide="circle-plus" aria-hidden="true"></i>Report a problem
+                </a>
+                <a asp-controller="Requests" asp-action="Track">
+                    <i data-lucide="search" aria-hidden="true"></i>Track a request
+                </a>
+                @if (User.IsInRole("Administrator"))
+                {
+                    <a asp-controller="Admin" asp-action="Index">
+                        <i data-lucide="layout-list" aria-hidden="true"></i>Admin requests
+                    </a>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button class="nav-button" type="submit">
+                            <i data-lucide="log-out" aria-hidden="true"></i>Log out
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <a class="cta" asp-controller="Account" asp-action="Login">
+                        <i data-lucide="shield" aria-hidden="true"></i>Admin login
+                    </a>
+                }
+            </nav>
+        </div>
+    </header>
+
     <main id="main" class="container">
-        @if (TempData["Success"] is string success) { <div class="notice success" role="status">@success</div> }
-        @if (TempData["Error"] is string error) { <div class="notice error" role="alert">@error</div> }
+        @if (TempData["Success"] is string success)
+        {
+            <div class="notice success" role="status">@success</div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="notice error" role="alert">@error</div>
+        }
         @RenderBody()
     </main>
-    <footer><div class="footer-inner"><div><strong>ReportSa</strong><span>Local problems. Shared progress.</span></div><div class="footer-links"><a asp-controller="Requests" asp-action="Report">Report</a><a asp-controller="Requests" asp-action="Track">Track</a><a href="https://www.gov.za" target="_blank" rel="noopener">gov.za<i data-lucide="arrow-up-right" aria-hidden="true"></i></a></div><span class="footer-disclaimer">&copy; @DateTime.Now.Year &middot; SPM622 student prototype</span></div></footer>
-    <script src="~/js/vendor/lucide.min.js" defer></script><script src="~/js/site.js" asp-append-version="true" defer></script>
+
+    <footer role="contentinfo">
+        <div class="footer-inner">
+            <div>
+                <strong>ReportSa</strong>
+                <span>Local problems. Shared progress.</span>
+            </div>
+            <div class="footer-links">
+                <a asp-controller="Requests" asp-action="Report">Report</a>
+                <a asp-controller="Requests" asp-action="Track">Track</a>
+                <a href="https://www.gov.za" target="_blank" rel="noopener noreferrer">
+                    gov.za <i data-lucide="arrow-up-right" aria-hidden="true"></i>
+                </a>
+            </div>
+            <span class="footer-disclaimer">&copy; @DateTime.Now.Year &middot; SPM622 student prototype</span>
+        </div>
+    </footer>
+
+    <script src="~/js/vendor/lucide.min.js" defer></script>
+    <script src="~/js/site.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
