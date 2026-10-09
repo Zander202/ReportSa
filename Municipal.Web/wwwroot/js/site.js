@@ -1,21 +1,25 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
-
-    // ---- Mobile menu ----
+document.addEventListener('DOMContentLoaded', () => {
+    window.lucide?.createIcons();
     const toggle = document.querySelector('.menu-toggle');
     const nav = document.getElementById('main-nav');
-    if (toggle && nav) {
-        toggle.addEventListener('click', () => {
-            const open = nav.classList.toggle('open');
-            toggle.setAttribute('aria-expanded', open);
-        });
-    }
-
-    // ---- Highlight current nav link ----
-    document.querySelectorAll('nav a:not(.cta)').forEach(a => {
-        if (a.pathname === location.pathname) a.classList.add('active');
+    toggle?.addEventListener('click', () => {
+        const open = nav.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(open));
+    });
+    document.querySelectorAll('nav a').forEach(link => {
+        if (link.pathname === location.pathname || (location.pathname === '/' && link.pathname === '/Requests/Report')) {
+            link.classList.add('active');
+            link.setAttribute('aria-current', 'page');
+        }
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && nav?.classList.contains('open')) {
+            nav.classList.remove('open');
+            toggle.setAttribute('aria-expanded', 'false');
+            toggle.focus();
+        }
     });
 
-    // ---- Copy reference code (Confirmation page) ----
     document.querySelectorAll('[data-copy]').forEach(button => {
         button.addEventListener('click', async () => {
             const input = document.getElementById(button.dataset.copy);
@@ -23,105 +27,183 @@
             try {
                 await navigator.clipboard.writeText(input.value);
                 if (feedback) feedback.textContent = 'Reference copied.';
-                button.textContent = 'Copied ✓';
-                setTimeout(() => (button.textContent = 'Copy'), 2000);
+                const previousText = button.textContent;
+                button.textContent = 'Copied';
+                setTimeout(() => { button.textContent = previousText; }, 2000);
             } catch {
                 input.select();
-                if (feedback) feedback.textContent = 'Select and copy the reference using Ctrl+C.';
+                if (feedback) feedback.textContent = 'Select and copy the reference.';
             }
         });
     });
 
-    // ---- Category tiles keep the dropdown in sync ----
-    const select = document.getElementById('Category');
+    const category = document.getElementById('Category');
     const tiles = document.querySelectorAll('.tile');
-    const syncTiles = () => tiles.forEach(t =>
-        t.classList.toggle('selected', select && t.dataset.category === select.value));
-    if (select && tiles.length) {
-        tiles.forEach(t => t.addEventListener('click', () => {
-            select.value = t.dataset.category;
-            select.dispatchEvent(new Event('change', { bubbles: true }));
+    const categoryError = document.getElementById('category-error');
+    const syncTiles = () => tiles.forEach(tile => {
+        const selected = tile.dataset.category === category?.value;
+        tile.classList.toggle('selected', selected);
+        tile.setAttribute('aria-pressed', String(selected));
+    });
+    if (category && tiles.length) {
+        tiles.forEach(tile => tile.addEventListener('click', () => {
+            category.value = tile.dataset.category;
+            categoryError.textContent = '';
+            category.dispatchEvent(new Event('change', { bubbles: true }));
         }));
-        select.addEventListener('change', syncTiles);
+        category.addEventListener('change', syncTiles);
         syncTiles();
     }
+    const report = document.getElementById('report-form');
+    const address = document.getElementById('Location');
+    const latitude = document.getElementById('Latitude');
+    const longitude = document.getElementById('Longitude');
+    const email = document.getElementById('ResidentEmail');
+    const municipality = document.getElementById('MunicipalityCode');
+    const updateSteps = () => {
+        const states = {
+            problem: Boolean(category?.value),
+            place: Boolean(municipality?.value && address?.value.trim()),
+            contact: Boolean(email?.value && email.validity.valid)
+        };
+        document.querySelectorAll('[data-step]').forEach(step => step.classList.toggle('complete', states[step.dataset.step]));
+    };
+    report?.addEventListener('input', updateSteps);
+    report?.addEventListener('change', updateSteps);
+    updateSteps();
 
-    const locateButton = document.getElementById('locate-button');
-    const locationInput = document.getElementById('Location');
-    const latitudeInput = document.getElementById('Latitude');
-    const longitudeInput = document.getElementById('Longitude');
-    const locationFeedback = document.getElementById('location-feedback');
-    if (locateButton && locationInput) {
-        let detectedLocation = '';
-        locationInput.addEventListener('input', () => {
-            latitudeInput.value = '';
-            longitudeInput.value = '';
-            locationFeedback.textContent = '';
+    const locate = document.getElementById('locate-button');
+    const feedback = document.getElementById('location-feedback');
+    const details = document.getElementById('location-details');
+    const stop = document.getElementById('stop-location');
+    const clear = document.getElementById('clear-location');
+    const coordinates = document.getElementById('location-coordinates');
+    const map = document.getElementById('location-map');
+    let watchId = null;
+    let generation = 0;
+    let generatedAddress = '';
+    const stopWatching = () => {
+        generation++;
+        if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+        watchId = null;
+        if (locate) {
+            locate.disabled = false;
+            locate.querySelector('span').textContent = 'Get live location';
+        }
+        if (stop) stop.hidden = true;
+    };
+    const refreshLocationDetails = () => {
+        details.hidden = false;
+        coordinates.textContent = `${latitude.value}, ${longitude.value}`;
+        map.href = `https://www.google.com/maps?q=${encodeURIComponent(`${latitude.value},${longitude.value}`)}`;
+    };
+    if (locate && address) {
+        stop.hidden = true;
+        if (latitude.value && longitude.value) refreshLocationDetails();
+        address.addEventListener('input', () => {
+            stopWatching();
+            latitude.value = '';
+            longitude.value = '';
+            details.hidden = true;
+            feedback.textContent = '';
         });
-        locateButton.addEventListener('click', () => {
-            if (!navigator.geolocation) {
-                locationFeedback.textContent = 'Location is unavailable. Enter the address manually.';
+        locate.addEventListener('click', () => {
+            if (!window.isSecureContext || !navigator.geolocation) {
+                feedback.textContent = 'GPS needs a secure HTTPS connection. You can still enter an address.';
                 return;
             }
-            const previousLocation = locationInput.value;
-            locateButton.disabled = true;
-            locationFeedback.textContent = 'Finding your location...';
-            navigator.geolocation.getCurrentPosition(position => {
-                locateButton.disabled = false;
-                if (locationInput.value !== previousLocation) {
-                    locationFeedback.textContent = 'Your typed address was kept. Select location again to attach coordinates.';
+            stopWatching();
+            const currentGeneration = generation;
+            locate.disabled = true;
+            locate.querySelector('span').textContent = 'Locating...';
+            feedback.textContent = 'Waiting for your device location. Allow location access when asked.';
+            stop.hidden = false;
+            // The generation prevents callbacks from an old watch changing a typed address.
+            watchId = navigator.geolocation.watchPosition(position => {
+                if (generation !== currentGeneration) return;
+                const { latitude: lat, longitude: lon, accuracy } = position.coords;
+                if (!Number.isFinite(lat) || !Number.isFinite(lon) || !Number.isFinite(accuracy)) return;
+                latitude.value = lat.toFixed(6);
+                longitude.value = lon.toFixed(6);
+                if (!address.value.trim() || address.value === generatedAddress) {
+                    generatedAddress = `GPS: ${latitude.value}, ${longitude.value}`;
+                    address.value = generatedAddress;
+                }
+                locate.querySelector('span').textContent = 'Location is live';
+                feedback.textContent = `Live GPS attached. Accuracy: approximately ${Math.round(accuracy)} m. Updates as your device location changes.`;
+                refreshLocationDetails();
+                updateSteps();
+            }, error => {
+                if (generation !== currentGeneration) return;
+                if (error.code !== 1 && latitude.value) {
+                    feedback.textContent = 'GPS is temporarily unavailable. Your last position is attached; live updates will resume when a new position is available.';
                     return;
                 }
-                latitudeInput.value = position.coords.latitude.toFixed(6);
-                longitudeInput.value = position.coords.longitude.toFixed(6);
-                if (!locationInput.value.trim() || locationInput.value === detectedLocation) {
-                    detectedLocation = `GPS: ${latitudeInput.value}, ${longitudeInput.value}`;
-                    locationInput.value = detectedLocation;
-                }
-                locationFeedback.textContent = `Location attached (accurate to approximately ${Math.round(position.coords.accuracy)} m).`;
-            }, error => {
-                locateButton.disabled = false;
-                locationFeedback.textContent = error.code === 1
-                    ? 'Location permission was declined. Enter the address manually.'
-                    : 'Could not find your location. Try again or enter the address manually.';
-            }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 });
+                stopWatching();
+                const messages = {
+                    1: 'Location permission was declined. Allow location in your browser settings, or enter an address.',
+                    2: 'Your device could not find a location. Try again, or enter an address.',
+                    3: 'Finding your location took too long. Try again, or enter an address.'
+                };
+                feedback.textContent = messages[error.code] || 'Location is unavailable. Enter an address.';
+                if (latitude.value) feedback.textContent += ' Your last GPS position has been kept.';
+            }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
         });
+        stop.addEventListener('click', () => {
+            stopWatching();
+            feedback.textContent = 'Live updates stopped. Your last GPS position is attached to this report.';
+        });
+        clear.addEventListener('click', () => {
+            stopWatching();
+            latitude.value = '';
+            longitude.value = '';
+            if (address.value === generatedAddress) address.value = '';
+            details.hidden = true;
+            feedback.textContent = 'GPS removed. Enter the address or attach a new location.';
+            updateSteps();
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && watchId !== null) {
+                stopWatching();
+                feedback.textContent = latitude.value ? 'Live updates paused. Your last GPS position is attached.' : 'Location paused. Select live location to try again.';
+            }
+        });
+        window.addEventListener('pagehide', stopWatching);
     }
 
-    // ---- Description character counter ----
-    const desc = document.getElementById('Description');
+    const description = document.getElementById('Description');
     const count = document.getElementById('char-count');
-    if (desc && count) {
-        const update = () => (count.textContent = desc.value.length);
-        desc.addEventListener('input', update);
+    if (description && count) {
+        const update = () => { count.textContent = description.value.length; };
+        description.addEventListener('input', update);
         update();
     }
-
-    // ---- Reference code: uppercase + trim as you type ----
-    const ref = document.getElementById('ReferenceCode');
-    if (ref) ref.addEventListener('input', () => (ref.value = ref.value.toUpperCase().trim()));
-
-    // ---- Submit button loading state ----
+    const reference = document.getElementById('ReferenceCode');
+    reference?.addEventListener('input', () => { reference.value = reference.value.toUpperCase().trim(); });
     document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', () => {
-            if (form.querySelector('.input-validation-error')) return;
-            const btn = form.querySelector('button[type="submit"].button');
-            if (btn) { btn.classList.add('loading'); btn.textContent = 'Please wait…'; }
+        form.addEventListener('submit', event => {
+            if (form === report && !category.value) {
+                event.preventDefault();
+                categoryError.textContent = 'Choose a problem category.';
+                tiles[0].focus();
+                return;
+            }
+            if (event.defaultPrevented) return;
+            if (form === report) stopWatching();
+            const button = form.querySelector('button[type="submit"].button');
+            if (button) {
+                button.classList.add('loading');
+                const text = button.querySelector('span');
+                if (text) text.textContent = 'Submitting...';
+                else button.textContent = 'Please wait...';
+            }
         });
     });
-
-    // ---- Scroll reveal ----
-    const items = document.querySelectorAll('.reveal, .panel, .hero');
-    if ('IntersectionObserver' in window) {
-        const io = new IntersectionObserver(entries => entries.forEach(e => {
-            if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-        }), { threshold: 0.1 });
-        items.forEach(el => { el.classList.add('reveal'); io.observe(el); });
-    } else {
-        items.forEach(el => el.classList.add('visible'));
-    }
-
-    // ---- Auto-hide success notices ----
-    document.querySelectorAll('.notice.success').forEach(n =>
-        setTimeout(() => { n.style.transition = 'opacity .6s'; n.style.opacity = 0; }, 6000));
+    window.addEventListener('pageshow', () => {
+        document.querySelectorAll('.button.loading').forEach(button => {
+            button.classList.remove('loading');
+            const text = button.querySelector('span');
+            if (text && report?.contains(button)) text.textContent = 'Submit problem';
+        });
+    });
 });

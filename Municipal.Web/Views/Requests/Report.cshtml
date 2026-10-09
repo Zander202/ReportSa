@@ -1,107 +1,73 @@
-﻿@model ReportForm
+@model ReportForm
 @inject Municipal.Web.Services.MunicipalityDirectory Municipalities
 @{
     ViewData["Title"] = "Report a Problem";
     var icons = new Dictionary<Category, string>
     {
-        [Category.Pothole] = "🕳️",
-        [Category.PowerOutage] = "⚡",
-        [Category.BrokenStreetlight] = "💡",
-        [Category.WaterLeak] = "💧",
-        [Category.BlockedDrain] = "🌊",
-        [Category.IllegalDumping] = "🗑️",
-        [Category.Other] = "📋"
+        [Category.Pothole] = "construction", [Category.PowerOutage] = "zap",
+        [Category.BrokenStreetlight] = "lightbulb", [Category.WaterLeak] = "droplets",
+        [Category.BlockedDrain] = "waves", [Category.IllegalDumping] = "trash-2", [Category.Other] = "message-square"
     };
 }
-
-<section class="hero reveal">
-    <div>
-        <p class="eyebrow">A better neighbourhood starts here</p>
-        <h1>Report a local problem.</h1>
-        <p class="lead">Tell us what needs attention. Keep your reference code to follow the request as it moves through the municipal workflow.</p>
-        <div class="stats">
-            <span class="stat">✔ No account needed</span>
-            <span class="stat">Email confirmation</span>
-            <span class="stat">🔎 Live tracking</span>
-        </div>
-    </div>
-    <div class="hero-art" aria-hidden="true">
-        <svg viewBox="0 0 900 600"><use href="#sa-flag" /></svg>
-    </div>
-</section>
-
-<div class="two-column">
-    <section class="intro reveal">
-        <div class="info-card">
-            <h2>How it works</h2>
-            <ol class="how">
-                <li>Describe the problem and its location.</li>
-                <li>Save your unique reference code.</li>
-                <li>Track status updates whenever you need.</li>
-            </ol>
-        </div>
-        <p class="muted">No resident account required. This student prototype does not provide emergency assistance. In an emergency call <strong>10111</strong>, <strong>10177</strong> or <strong>112</strong>.</p>
-    </section>
-
-    <section class="panel reveal">
-        <h2>Problem details</h2>
-
-        <form asp-action="Report" method="post" novalidate>
-            <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
-
-            <label>What kind of problem?</label>
-            <div class="tiles" role="group" aria-label="Quick category picker">
-                @foreach (var c in Enum.GetValues<Category>())
+<div class="report-heading">
+    <div><p class="eyebrow">Resident services</p><h1>Report a problem</h1><p class="lead">A small report can make a big difference to your neighbourhood.</p></div>
+    <a class="heading-link" asp-action="Track"><i data-lucide="search" aria-hidden="true"></i>Track an existing report<i data-lucide="arrow-up-right" aria-hidden="true"></i></a>
+</div>
+<div class="report-layout">
+    <aside class="report-sidebar">
+        <div class="sidebar-heading"><i data-lucide="clipboard-list" aria-hidden="true"></i><h2>Your report</h2></div>
+        <ol class="report-steps" aria-label="Report sections">
+            <li data-step="problem"><span class="step-number">1</span><div><strong>The problem</strong><small>Category and details</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
+            <li data-step="place"><span class="step-number">2</span><div><strong>The location</strong><small>Municipality and address</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
+            <li data-step="contact"><span class="step-number">3</span><div><strong>Your contact</strong><small>Email confirmation</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
+        </ol>
+        <div class="sidebar-note"><i data-lucide="ticket" aria-hidden="true"></i><h3>Keep your reference</h3><p>After submitting, you'll receive a reference code to follow your request.</p></div>
+        <div class="sidebar-note"><i data-lucide="shield-check" aria-hidden="true"></i><h3>No account needed</h3><p>Your email is used for updates about this report.</p></div>
+        <div class="emergency-note"><strong>For emergencies, call 112.</strong><p>This student service portal is for municipal reports, not emergency assistance.</p></div>
+    </aside>
+    <form asp-action="Report" method="post" class="report-form" id="report-form">
+        <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
+        <section class="form-section" id="problem-section">
+            <div class="section-heading"><span class="section-number">01</span><div><h2>What needs attention?</h2><p>Choose the category that best describes the problem.</p></div></div>
+            <div class="tiles" role="group" aria-label="Problem category">
+                @foreach (var category in Enum.GetValues<Category>())
                 {
-                    <button type="button" class="tile" data-category="@((int)c)">
-                        <span class="tile-icon" aria-hidden="true">@icons[c]</span>
-                        <span>@Labels.CategoryName(c)</span>
-                    </button>
+                    <button type="button" class="tile" data-category="@((int)category)" aria-pressed="false"><i data-lucide="@icons[category]" aria-hidden="true"></i><span>@Labels.CategoryName(category)</span><i class="tile-check" data-lucide="circle-check" aria-hidden="true"></i></button>
                 }
-
             </div>
-
-            <label asp-for="Category"></label>
-            <select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()">
-                <option value="">Select a category</option>
-            </select>
-            <span asp-validation-for="Category" class="validation"></span>
-
+            <div class="category-fallback"><label asp-for="Category"></label><select asp-for="Category" asp-items="Html.GetEnumSelectList<Category>()"><option value="">Select a category</option></select></div>
+            <span asp-validation-for="Category" class="validation" id="category-error" role="alert"></span>
+            <div class="label-row"><label asp-for="Description">Tell us a little more</label><span class="optional">Optional</span></div>
+            <textarea asp-for="Description" rows="3" maxlength="1000" placeholder="What happened? Add any details that will help the municipal team."></textarea>
+            <div class="field-meta"><span>Avoid including sensitive personal information.</span><span><span id="char-count">0</span> / 1000</span></div>
+            <span asp-validation-for="Description" class="validation"></span>
+        </section>
+        <section class="form-section" id="place-section">
+            <div class="section-heading"><span class="section-number">02</span><div><h2>Where is the problem?</h2><p>Choose the municipality responsible for this location.</p></div></div>
             <label asp-for="MunicipalityCode"></label>
             <select asp-for="MunicipalityCode" required>
                 <option value="">Select your municipality</option>
                 @foreach (var province in Municipalities.All.GroupBy(x => x.Province))
                 {
-                    <optgroup label="@province.Key">
-                        @foreach (var municipality in province)
-                        {
-                            <option value="@municipality.Code">@municipality.Label</option>
-                        }
-                    </optgroup>
+                    <optgroup label="@province.Key">@foreach (var municipality in province) { <option value="@municipality.Code">@municipality.Label</option> }</optgroup>
                 }
             </select>
             <span asp-validation-for="MunicipalityCode" class="validation"></span>
-
-            <label asp-for="Location"></label>
-            <input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" />
+            <label asp-for="Location">Street address or landmark</label>
+            <input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" required />
             <span asp-validation-for="Location" class="validation"></span>
-            <input asp-for="Latitude" type="hidden" />
-            <input asp-for="Longitude" type="hidden" />
-            <button type="button" id="locate-button" class="button secondary">Use my location</button>
-            <p id="location-feedback" class="hint" role="status" aria-live="polite"></p>
-
-            <label asp-for="ResidentEmail"></label>
-            <input asp-for="ResidentEmail" type="email" maxlength="254" placeholder="e.g. thabo@example.co.za" autocomplete="email" required />
+            <input asp-for="Latitude" type="hidden" /><input asp-for="Longitude" type="hidden" />
+            <div class="location-tool">
+                <div class="location-top"><div class="location-icon"><i data-lucide="locate-fixed" aria-hidden="true"></i></div><div><strong>Use your current location</strong><span>Attach the GPS position of the problem.</span></div><button type="button" id="locate-button" class="button secondary"><i data-lucide="navigation" aria-hidden="true"></i><span>Get live location</span></button></div>
+                <p id="location-feedback" class="location-feedback" role="status" aria-live="polite"></p>
+                <div id="location-details" class="location-details" hidden><span id="location-coordinates"></span><a id="location-map" target="_blank" rel="noopener noreferrer">View on map<i data-lucide="arrow-up-right" aria-hidden="true"></i></a><button type="button" id="stop-location" class="icon-button" title="Stop live location" aria-label="Stop live location"><i data-lucide="pause" aria-hidden="true"></i></button><button type="button" id="clear-location" class="icon-button" title="Remove GPS location" aria-label="Remove GPS location"><i data-lucide="x" aria-hidden="true"></i></button></div>
+            </div>
+        </section>
+        <section class="form-section" id="contact-section">
+            <div class="section-heading"><span class="section-number">03</span><div><h2>Where can we send updates?</h2><p>We'll use this address for your report confirmation.</p></div></div>
+            <label asp-for="ResidentEmail"></label><input asp-for="ResidentEmail" type="email" maxlength="254" placeholder="you@example.co.za" autocomplete="email" required />
             <span asp-validation-for="ResidentEmail" class="validation"></span>
-
-            <label asp-for="Description"></label>
-            <textarea asp-for="Description" rows="5" maxlength="1000" placeholder="Add details that will help the municipality understand the issue."></textarea>
-            <div class="counter"><span id="char-count">0</span> / 1000</div>
-            <span asp-validation-for="Description" class="validation"></span>
-            <p class="hint">Please avoid personal or sensitive information.</p>
-
-            <button type="submit" class="button gold" style="width:100%;margin-top:24px">Submit problem</button>
-
-        </form>
-    </section>
+        </section>
+        <div class="submit-row"><p><i data-lucide="lock-keyhole" aria-hidden="true"></i>Your details stay with your report.</p><button type="submit" class="button"><span>Submit problem</span><i data-lucide="arrow-right" aria-hidden="true"></i></button></div>
+    </form>
 </div>

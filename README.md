@@ -39,6 +39,31 @@ dotnet user-secrets set "Email:TrackUrl" "https://localhost:7124/Requests/Track"
 
 Run and test
 
+Reports, municipality details, GPS coordinates, assignments, email delivery status,
+tracking history, users, password hashes, and roles are stored in the configured
+PostgreSQL database. Logins continue to use ASP.NET Identity, not Supabase Auth.
+Use the same Supabase database on every teammate's machine to share these records
+and keep the existing accounts. User Secrets are local to each machine and are not
+included in Git; each teammate must configure their connection separately.
+In Supabase's Connect dialog, use the Session pooler connection if the teammate's
+network only supports IPv4. Never commit the database password.
+
+Verify the database and existing administrator without changing records:
+
+```powershell
+dotnet run --project Municipal.Web -- --verify-database
+```
+
+Test report creation, readback, and updates in a transaction that rolls back:
+
+```powershell
+dotnet run --project Municipal.Web -- --verify-storage
+```
+
+Compiled local launches load the project's existing User Secrets too. Environment
+variables override them, so a deployed server can use
+`ConnectionStrings__DefaultConnection` and `Database__Provider=Postgres`.
+
 ```powershell
 dotnet run --project Municipal.Web
 dotnet test Municipal.sln --no-restore

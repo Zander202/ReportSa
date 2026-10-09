@@ -6,11 +6,22 @@ using Municipal.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Compiled local launches also need the same secrets as dotnet run.
+builder.Configuration.AddUserSecrets<Program>(optional: true);
+builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddCommandLine(args);
+
 builder.Services.AddControllersWithViews(o =>
     o.Filters.Add(new AutoValidateAntiforgeryTokenAttribute()));
 
 var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 var provider = builder.Configuration["Database:Provider"] ?? "Postgres";
+if (string.IsNullOrWhiteSpace(connection))
+    throw new InvalidOperationException(
+        "Database connection is missing. Set ConnectionStrings__DefaultConnection to your Supabase PostgreSQL connection, or configure ConnectionStrings:DefaultConnection in User Secrets.");
+if (!provider.Equals("Postgres", StringComparison.OrdinalIgnoreCase)
+    && !provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
+    throw new InvalidOperationException("Database:Provider must be Postgres or SqlServer.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -52,6 +63,12 @@ builder.Services.AddSingleton<EmailService>();
 builder.Services.AddScoped<RequestService>();
 
 var app = builder.Build();
+
+if (args.Contains("--verify-database") || args.Contains("--verify-storage"))
+{
+    await DatabaseVerification.RunAsync(app.Services, app.Configuration, args.Contains("--verify-storage"));
+    return;
+}
 
 if (args.Contains("--setup") || args.Contains("--seed-demo"))
 {
