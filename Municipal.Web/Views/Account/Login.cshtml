@@ -1,24 +1,16 @@
 @model LoginForm
-@{
-    ViewData["Title"] = "Admin Login";
-}
-
-<section class="panel narrow">
-    <p class="eyebrow">Municipal administration</p>
-    <h1>Admin login</h1>
-    <p class="muted" style="margin-bottom: 24px;">Use the administrator account configured for this local system.</p>
-
-    <form asp-action="Login" method="post" novalidate>
+@{ ViewData["Title"] = "Admin Login"; }
+<section class="panel narrow login-panel">
+    <div class="page-symbol"><i data-lucide="shield-check" aria-hidden="true"></i></div>
+    <p class="eyebrow">Municipal administration</p><h1>Welcome back</h1><p class="lead">Sign in to manage your municipality's reports.</p>
+    <form asp-action="Login" method="post">
         <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
-
-        <label asp-for="Email"></label>
-        <input asp-for="Email" type="email" autocomplete="username" placeholder="admin@municipal.gov.za" />
+        <label asp-for="Email">Email address</label><input asp-for="Email" type="email" autocomplete="username" placeholder="admin@municipal.gov.za" required />
         <span asp-validation-for="Email" class="validation"></span>
-
         <label asp-for="Password"></label>
-        <input asp-for="Password" type="password" autocomplete="current-password" placeholder="••••••••" />
+        <div class="password-field"><input asp-for="Password" type="password" autocomplete="current-password" placeholder="Enter your password" required /><button type="button" id="password-toggle" class="icon-button" aria-label="Show password" title="Show password" aria-pressed="false"><i data-lucide="eye" class="show-password-icon" aria-hidden="true"></i><i data-lucide="eye-off" class="hide-password-icon" aria-hidden="true" hidden></i></button></div>
         <span asp-validation-for="Password" class="validation"></span>
-
-        <button class="button" type="submit" style="width: 100%; margin-top: 24px; text-align: center;">Log in</button>
+        <button class="button login-submit" type="submit"><span>Log in</span><i data-lucide="arrow-right" aria-hidden="true"></i></button>
     </form>
+    <div class="login-foot"><i data-lucide="lock-keyhole" aria-hidden="true"></i>Administrator access only</div>
 </section>

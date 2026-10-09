@@ -18,7 +18,7 @@ var connection = builder.Configuration.GetConnectionString("DefaultConnection");
 var provider = builder.Configuration["Database:Provider"] ?? "Postgres";
 if (string.IsNullOrWhiteSpace(connection))
     throw new InvalidOperationException(
-        "Database connection is missing. Set ConnectionStrings__DefaultConnection to your Supabase PostgreSQL connection, or configure ConnectionStrings:DefaultConnection in User Secrets.");
+        "Database connection is missing on this machine. From the ReportSa folder, run scripts/Configure-Supabase.ps1, then restart the app. Alternatively set ConnectionStrings__DefaultConnection to your Supabase PostgreSQL connection.");
 if (!provider.Equals("Postgres", StringComparison.OrdinalIgnoreCase)
     && !provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
     throw new InvalidOperationException("Database:Provider must be Postgres or SqlServer.");
@@ -64,9 +64,10 @@ builder.Services.AddScoped<RequestService>();
 
 var app = builder.Build();
 
-if (args.Contains("--verify-database") || args.Contains("--verify-storage"))
+if (args.Contains("--check-database") || args.Contains("--verify-database") || args.Contains("--verify-storage"))
 {
-    await DatabaseVerification.RunAsync(app.Services, app.Configuration, args.Contains("--verify-storage"));
+    await DatabaseVerification.RunAsync(app.Services, app.Configuration,
+        args.Contains("--verify-storage"), verifyLogin: !args.Contains("--check-database"));
     return;
 }
 

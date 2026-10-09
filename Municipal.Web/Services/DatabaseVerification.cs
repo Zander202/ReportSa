@@ -7,7 +7,7 @@ namespace Municipal.Web.Services;
 
 public static class DatabaseVerification
 {
-    public static async Task RunAsync(IServiceProvider services, IConfiguration configuration, bool verifyStorage = false)
+    public static async Task RunAsync(IServiceProvider services, IConfiguration configuration, bool verifyStorage = false, bool verifyLogin = true)
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -18,6 +18,12 @@ public static class DatabaseVerification
             var reports = await db.Requests.CountAsync();
             var history = await db.StatusHistory.CountAsync();
             var accounts = await db.Users.CountAsync();
+            Console.WriteLine($"Database verified: {reports} reports, {history} history entries, {accounts} accounts.");
+            if (!verifyLogin)
+            {
+                Console.WriteLine("Shared database connection verified. No records or accounts were changed.");
+                return;
+            }
             var email = configuration["Admin:Email"];
             var password = configuration["Admin:Password"];
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -32,7 +38,6 @@ public static class DatabaseVerification
             if (hasher.VerifyHashedPassword(user, user.PasswordHash, password) == PasswordVerificationResult.Failed)
                 throw new InvalidOperationException("The configured password does not match the existing administrator. The password was not changed.");
 
-            Console.WriteLine($"Database verified: {reports} reports, {history} history entries, {accounts} accounts.");
             Console.WriteLine("Existing administrator password and role verified. No records or passwords were changed.");
             if (verifyStorage)
                 await VerifyStorageAsync(db, scope.ServiceProvider.GetRequiredService<RequestService>());

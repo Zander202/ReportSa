@@ -2,11 +2,35 @@ Municipal Problem Reporting and Tracking System
 
 Setup
 
+Teammates joining the existing shared Supabase project: pull the updated code,
+stop the app, and run this once from the ReportSa folder:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\Configure-Supabase.ps1
+dotnet run --project Municipal.Web
+```
+
+The script already contains the shared project's public Session pooler settings.
+It prompts for the Supabase DATABASE password (ask the project owner privately),
+saves it in User Secrets on that machine, and checks the existing app tables.
+It does not change administrator passwords, create accounts, or seed reports.
+Use the existing administrator login. Each teammate must run this because
+User Secrets are not shared through Git. Never put the password in the repository.
+
+To check an already configured machine without administrator credentials:
+
+```powershell
+dotnet run --project Municipal.Web -- --check-database
+```
+
+The following initial provisioning instructions are for the project owner setting
+up a NEW database, not teammates joining the existing database.
+
 Municipality selection uses a bundled snapshot of National Treasury's municipality directory, excluding disestablished codes. Sources: https://municipaldata.treasury.gov.za/api/cubes/municipalities/facts and https://municipaldata.treasury.gov.za/api/cubes/demarcation_changes/facts (retrieved 8 October 2026).
 
 Browser location attaches GPS coordinates after permission is granted. Residents can still enter an address manually. Unconfigured assignees use fictional demo staff; completion times are provisional prototype estimates. Administrators can replace the assignee and adjust the ETA.
 
-After pulling schema changes, run `dotnet run --project Municipal.Web -- --setup` before starting the website. Supabase setup adds the new report fields while preserving existing records.
+When schema changes are needed, the project owner runs `dotnet run --project Municipal.Web -- --setup` once for the shared database. Supabase setup adds the new report fields while preserving existing records.
 
 Gmail setup: enable Google 2-Step Verification and create an app password at https://myaccount.google.com/apppasswords, then run `powershell -ExecutionPolicy Bypass -File .\scripts\Configure-Gmail.ps1`. The script prompts for the sender address and a hidden app password, sends a test email to the sender, and saves settings in User Secrets. Restart the website afterward. See https://support.google.com/accounts/answer/185833.
 

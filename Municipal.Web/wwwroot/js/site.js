@@ -67,6 +67,12 @@ document.addEventListener('DOMContentLoaded', () => {
             contact: Boolean(email?.value && email.validity.valid)
         };
         document.querySelectorAll('[data-step]').forEach(step => step.classList.toggle('complete', states[step.dataset.step]));
+        const summaryCategory = document.getElementById('summary-category');
+        const summaryMunicipality = document.getElementById('summary-municipality');
+        const summaryGps = document.getElementById('summary-gps');
+        if (summaryCategory) summaryCategory.textContent = category.value ? category.selectedOptions[0].textContent : 'Not selected';
+        if (summaryMunicipality) summaryMunicipality.textContent = municipality.value ? municipality.selectedOptions[0].textContent : 'Not selected';
+        if (summaryGps) summaryGps.textContent = latitude.value && longitude.value ? 'Attached to report' : 'Not attached';
     };
     report?.addEventListener('input', updateSteps);
     report?.addEventListener('change', updateSteps);
@@ -106,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
             longitude.value = '';
             details.hidden = true;
             feedback.textContent = '';
+            updateSteps();
         });
         locate.addEventListener('click', () => {
             if (!window.isSecureContext || !navigator.geolocation) {
@@ -180,6 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const reference = document.getElementById('ReferenceCode');
     reference?.addEventListener('input', () => { reference.value = reference.value.toUpperCase().trim(); });
+    const passwordToggle = document.getElementById('password-toggle');
+    const passwordField = document.getElementById('Password');
+    passwordToggle?.addEventListener('click', () => {
+        const show = passwordField.type === 'password';
+        passwordField.type = show ? 'text' : 'password';
+        passwordToggle.setAttribute('aria-pressed', String(show));
+        passwordToggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        passwordToggle.title = show ? 'Hide password' : 'Show password';
+        passwordToggle.querySelector('.show-password-icon').toggleAttribute('hidden', show);
+        passwordToggle.querySelector('.hide-password-icon').toggleAttribute('hidden', !show);
+    });
     document.querySelectorAll('form').forEach(form => {
         form.addEventListener('submit', event => {
             if (form === report && !category.value) {
