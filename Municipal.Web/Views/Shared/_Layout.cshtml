@@ -8,6 +8,8 @@
     <link rel="icon" href="~/images/south-africa-flag.svg" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/polish.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/community.css" asp-append-version="true" />
+    @if (ViewData["Map"] is true) { <link rel="stylesheet" href="~/js/vendor/leaflet/leaflet.css" /> }
     <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -47,6 +49,7 @@
                 <a asp-controller="Requests" asp-action="Track">
                     <i data-lucide="search" aria-hidden="true"></i>Track a request
                 </a>
+                <a asp-controller="Requests" asp-action="Nearby"><i data-lucide="map" aria-hidden="true"></i>Nearby reports</a>
                 @if (User.IsInRole("Administrator"))
                 {
                     <a asp-controller="Admin" asp-action="Index">
@@ -99,6 +102,8 @@
 
     <script src="~/js/vendor/lucide.min.js" defer></script>
     <script src="~/js/site.js" asp-append-version="true" defer></script>
+    @if (ViewData["Map"] is true) { <script src="~/js/vendor/leaflet/leaflet.js" defer></script> }
+    <script src="~/js/community.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -2,6 +2,7 @@
 @inject Municipal.Web.Services.MunicipalityDirectory Municipalities
 @{
     ViewData["Title"] = "Report a Problem";
+    ViewData["Map"] = true;
     var icons = new Dictionary<Category, string>
     {
         [Category.Pothole] = "construction", [Category.PowerOutage] = "zap",
@@ -18,18 +19,18 @@
         <div class="sidebar-heading"><i data-lucide="clipboard-list" aria-hidden="true"></i><h2>Your report</h2></div>
         <ol class="report-steps" aria-label="Report sections">
             <li data-step="problem"><span class="step-number">1</span><div><strong>The problem</strong><small>Category and details</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
-            <li data-step="place"><span class="step-number">2</span><div><strong>The location</strong><small>Municipality and address</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
+            <li data-step="place"><span class="step-number">2</span><div><strong>The location</strong><small>Ur municipality</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
             <li data-step="contact"><span class="step-number">3</span><div><strong>Your contact</strong><small>Email confirmation</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
         </ol>
         <div class="report-summary" aria-live="polite">
             <p class="eyebrow">At a glance</p>
-            <dl><div><dt>Problem</dt><dd id="summary-category">Not selected</dd></div><div><dt>Municipality</dt><dd id="summary-municipality">Not selected</dd></div><div><dt>GPS position</dt><dd id="summary-gps">Not attached</dd></div></dl>
+            <dl><div><dt>Problem</dt><dd id="summary-category">Not selected</dd></div><div><dt>Ur municipality</dt><dd id="summary-municipality">Not selected</dd></div><div><dt>GPS position</dt><dd id="summary-gps">Not attached</dd></div></dl>
         </div>
         <div class="sidebar-note"><i data-lucide="ticket" aria-hidden="true"></i><h3>Keep your reference</h3><p>After submitting, you'll receive a reference code to follow your request.</p></div>
         <div class="sidebar-note"><i data-lucide="shield-check" aria-hidden="true"></i><h3>No account needed</h3><p>Your email is used for updates about this report.</p></div>
         <div class="emergency-note"><strong>For emergencies, call 112.</strong><p>This student service portal is for municipal reports, not emergency assistance.</p></div>
     </aside>
-    <form asp-action="Report" method="post" class="report-form" id="report-form">
+    <form asp-action="Report" method="post" enctype="multipart/form-data" class="report-form" id="report-form">
         <div asp-validation-summary="ModelOnly" class="validation" role="alert"></div>
         <section class="form-section" id="problem-section">
             <div class="section-heading"><span class="section-number">01</span><div><h2>What needs attention?</h2><p>Choose the category that best describes the problem.</p></div></div>
@@ -45,27 +46,39 @@
             <textarea asp-for="Description" rows="3" maxlength="1000" placeholder="What happened? Add any details that will help the municipal team."></textarea>
             <div class="field-meta"><span>Avoid including sensitive personal information.</span><span><span id="char-count">0</span> / 1000</span></div>
             <span asp-validation-for="Description" class="validation"></span>
+            <div class="label-row"><label asp-for="Photos">Problem photos</label><span class="optional">Optional</span></div>
+            <input asp-for="Photos" type="file" accept="image/jpeg,image/png,image/webp" multiple data-photo-input />
+            <div class="photo-preview" data-photo-preview aria-live="polite"></div>
+            <span asp-validation-for="Photos" class="validation"></span>
         </section>
         <section class="form-section" id="place-section">
-            <div class="section-heading"><span class="section-number">02</span><div><h2>Where is the problem?</h2><p>Choose the municipality responsible for this location.</p></div></div>
+            <div class="section-heading"><span class="section-number">02</span><div><h2>Where is the problem?</h2><p>Find ur municipality using your current location.</p></div></div>
             <label asp-for="MunicipalityCode"></label>
             <select asp-for="MunicipalityCode" required>
-                <option value="">Select your municipality</option>
+                <option value="">Select ur municipality</option>
                 @foreach (var province in Municipalities.All.GroupBy(x => x.Province))
                 {
                     <optgroup label="@province.Key">@foreach (var municipality in province) { <option value="@municipality.Code">@municipality.Label</option> }</optgroup>
                 }
             </select>
             <span asp-validation-for="MunicipalityCode" class="validation"></span>
-            <label asp-for="Location">Street address or landmark</label>
-            <input asp-for="Location" maxlength="200" placeholder="e.g. 24 Oak Street, near the library" required />
+            <label asp-for="Location">Address</label>
+            <input asp-for="Location" type="text" maxlength="200" placeholder="Type the address or choose a point on the map"
+                   autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false"
+                   aria-controls="address-suggestions" data-search-url="@Url.Action("SearchAddresses", "Requests")" required />
+            <ul id="address-suggestions" class="address-suggestions" role="listbox" aria-label="Matching places" hidden></ul>
+            <span id="address-search-status" class="address-search-status" role="status"></span>
             <span asp-validation-for="Location" class="validation"></span>
             <input asp-for="Latitude" type="hidden" /><input asp-for="Longitude" type="hidden" />
             <div class="location-tool">
-                <div class="location-top"><div class="location-icon"><i data-lucide="locate-fixed" aria-hidden="true"></i></div><div><strong>Use your current location</strong><span>Attach the GPS position of the problem.</span></div><button type="button" id="locate-button" class="button secondary"><i data-lucide="navigation" aria-hidden="true"></i><span>Get live location</span></button></div>
+                <div class="location-top"><div class="location-icon"><i data-lucide="locate-fixed" aria-hidden="true"></i></div><div><strong>Use your current location</strong><span>Your browser will ask for permission.</span></div><button type="button" id="locate-button" data-municipality-url="@Url.Action("LocateMunicipality")" class="button secondary"><i data-lucide="navigation" aria-hidden="true"></i><span>Locate me</span></button></div>
                 <p id="location-feedback" class="location-feedback" role="status" aria-live="polite"></p>
-                <div id="location-details" class="location-details" hidden><span id="location-coordinates"></span><a id="location-map" target="_blank" rel="noopener noreferrer">View on map<i data-lucide="arrow-up-right" aria-hidden="true"></i></a><button type="button" id="stop-location" class="icon-button" title="Stop live location" aria-label="Stop live location"><i data-lucide="pause" aria-hidden="true"></i></button><button type="button" id="clear-location" class="icon-button" title="Remove GPS location" aria-label="Remove GPS location"><i data-lucide="x" aria-hidden="true"></i></button></div>
+                <div id="location-details" class="location-details" hidden><a id="location-map" target="_blank" rel="noopener noreferrer">View on map<i data-lucide="arrow-up-right" aria-hidden="true"></i></a><button type="button" id="clear-location" class="icon-button" title="Remove location" aria-label="Remove location"><i data-lucide="x" aria-hidden="true"></i></button><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">Address data: OpenStreetMap</a></div>
             </div>
+            <div class="map-heading"><h3>Problem location</h3><button type="button" id="use-map-centre" class="button secondary"><i data-lucide="map-pin" aria-hidden="true"></i><span>Use map centre</span></button></div>
+            <div id="report-map" class="location-canvas" role="region" aria-label="Problem location map"></div>
+            <p id="map-feedback" role="status" aria-live="polite"></p>
+            <div id="nearby-suggestions" data-url="@Url.Action("NearbyData")" hidden><div class="map-heading"><h3>Already reported nearby</h3><a asp-action="Nearby">View reports</a></div><div id="nearby-suggestion-list" aria-live="polite"></div></div>
         </section>
         <section class="form-section" id="contact-section">
             <div class="section-heading"><span class="section-number">03</span><div><h2>Where can we send updates?</h2><p>We'll use this address for your report confirmation.</p></div></div>

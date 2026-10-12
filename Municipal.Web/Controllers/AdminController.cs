@@ -20,7 +20,7 @@ public class AdminController(
         Category? category,
         Priority? priority,
         RequestStatus? status,
-        string sort = "priority")
+        string sort = "priority", string? municipalityCode = null, bool overdue = false, string tab = "active")
     {
         if (!ModelState.IsValid ||
             (category.HasValue && !Enum.IsDefined(category.Value)) ||
@@ -30,8 +30,15 @@ public class AdminController(
 
         if (sort is not ("priority" or "oldest" or "newest"))
             return BadRequest("Invalid sort.");
+        if (tab is not ("active" or "resolved")) return BadRequest("Invalid ticket tab.");
 
         var query = db.Requests.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrEmpty(municipalityCode)) query = query.Where(x => x.MunicipalityCode == municipalityCode);
+        ViewBag.ActiveCount = await query.CountAsync(x => x.Status < RequestStatus.Resolved);
+        ViewBag.ResolvedCount = await query.CountAsync(x => x.Status >= RequestStatus.Resolved);
+        query = tab == "resolved" ? query.Where(x => x.Status >= RequestStatus.Resolved)
+            : query.Where(x => x.Status < RequestStatus.Resolved);
+        if (overdue) query = query.Where(x => x.Status < RequestStatus.Resolved && x.EstimatedCompletionAt < DateTimeOffset.UtcNow);
 
         if (category.HasValue)
             query = query.Where(x => x.Category == category);
@@ -58,8 +65,19 @@ public class AdminController(
         ViewBag.Priority = priority;
         ViewBag.Status = status;
         ViewBag.Sort = sort;
+        ViewBag.Tab = tab;
+        ViewBag.MunicipalityCode = municipalityCode;
+        ViewBag.Overdue = overdue;
+        ViewBag.Metrics = await new CommunityService(db).DashboardAsync(municipalityCode);
 
-        return View(await query.ToListAsync());
+        var requests = await query.ToListAsync();
+        var ids = requests.Select(r => r.Id).ToList();
+        var photos = await db.RequestPhotos.AsNoTracking().Where(p => ids.Contains(p.ProblemRequestId))
+            .Select(p => new RequestPhoto { Id = p.Id, ProblemRequestId = p.ProblemRequestId,
+                FileName = p.FileName, IsResolution = p.IsResolution }).ToListAsync();
+        var byRequest = photos.ToLookup(p => p.ProblemRequestId);
+        foreach (var request in requests) request.Photos = byRequest[request.Id].ToList();
+        return View(requests);
     }
 
     // =========================
@@ -160,12 +178,15 @@ public class AdminController(
             .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == id);
 
+        if (r is not null) r.Photos = await db.RequestPhotos.AsNoTracking().Where(p => p.ProblemRequestId == r.Id)
+            .Select(p => new RequestPhoto { Id = p.Id, IsResolution = p.IsResolution, FileName = p.FileName }).ToListAsync();
         return r is null ? NotFound() : View(r);
     }
 
-    [HttpPost]
+    [HttpPost, RequestSizeLimit(16 * 1024 * 1024)]
     public async Task<IActionResult> Update(UpdateForm form)
     {
+        if (form.CloseTicket) form.Status = RequestStatus.Closed;
         if (!ModelState.IsValid)
         {
             TempData["Error"] = "Choose valid values for all fields.";
@@ -174,8 +195,14 @@ public class AdminController(
 
         try
         {
-            await service.UpdateAsync(form);
-            TempData["Success"] = "Request updated.";
+            var delivery = await service.UpdateAsync(form);
+            var message = form.Status == RequestStatus.Closed ? "Ticket closed." : "Request updated.";
+            TempData["Success"] = delivery == EmailDeliveryStatus.Sent
+                ? message + " The reporter has been emailed." : message;
+            if (delivery == EmailDeliveryStatus.Failed) TempData["Error"] = "The report was saved, but the reporter's email could not be delivered.";
+            if (delivery == EmailDeliveryStatus.Disabled && form.Status >= RequestStatus.Resolved)
+                TempData["Error"] = "The ticket was saved, but email notifications are not configured for this report.";
+            return RedirectToAction(nameof(Index));
         }
         catch (ArgumentException ex)
         {

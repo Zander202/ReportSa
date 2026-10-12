@@ -296,6 +296,16 @@ namespace Municipal.Web.Data.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<int>("ResidentReview")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ResolutionNotes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .IsRequired()
@@ -310,6 +320,8 @@ namespace Municipal.Web.Data.Migrations
                     b.HasIndex("ReferenceCode")
                         .IsUnique();
 
+                    b.HasIndex("MunicipalityCode", "Status", "ReportedAt");
+
                     b.ToTable("Requests", t =>
                         {
                             t.HasCheckConstraint("CK_Request_Category", "[Category] BETWEEN 0 AND 6");
@@ -318,6 +330,76 @@ namespace Municipal.Web.Data.Migrations
 
                             t.HasCheckConstraint("CK_Request_Status", "[Status] BETWEEN 0 AND 4");
                         });
+                });
+
+            modelBuilder.Entity("Municipal.Web.Models.RequestPhoto", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<byte[]>("Content")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.Property<bool>("IsResolution")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ProblemRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProblemRequestId");
+
+                    b.ToTable("RequestPhotos");
+                });
+
+            modelBuilder.Entity("Municipal.Web.Models.RequestSupporter", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("nvarchar(254)");
+
+                    b.Property<string>("EmailKey")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTimeOffset>("JoinedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("ProblemRequestId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProblemRequestId", "EmailKey")
+                        .IsUnique();
+
+                    b.ToTable("RequestSupporters");
                 });
 
             modelBuilder.Entity("Municipal.Web.Models.StatusHistory", b =>
@@ -330,6 +412,10 @@ namespace Municipal.Web.Data.Migrations
 
                     b.Property<DateTimeOffset>("ChangedAt")
                         .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<int>("ProblemRequestId")
                         .HasColumnType("int");
@@ -398,6 +484,28 @@ namespace Municipal.Web.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Municipal.Web.Models.RequestPhoto", b =>
+                {
+                    b.HasOne("Municipal.Web.Models.ProblemRequest", "Request")
+                        .WithMany("Photos")
+                        .HasForeignKey("ProblemRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Request");
+                });
+
+            modelBuilder.Entity("Municipal.Web.Models.RequestSupporter", b =>
+                {
+                    b.HasOne("Municipal.Web.Models.ProblemRequest", "Request")
+                        .WithMany("Supporters")
+                        .HasForeignKey("ProblemRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Request");
+                });
+
             modelBuilder.Entity("Municipal.Web.Models.StatusHistory", b =>
                 {
                     b.HasOne("Municipal.Web.Models.ProblemRequest", "Request")
@@ -412,6 +520,10 @@ namespace Municipal.Web.Data.Migrations
             modelBuilder.Entity("Municipal.Web.Models.ProblemRequest", b =>
                 {
                     b.Navigation("History");
+
+                    b.Navigation("Photos");
+
+                    b.Navigation("Supporters");
                 });
 #pragma warning restore 612, 618
         }

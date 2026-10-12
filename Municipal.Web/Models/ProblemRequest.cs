@@ -4,6 +4,7 @@ public enum Category { Pothole, [Display(Name="Power outage")] PowerOutage, [Dis
 public enum Priority { Low, Normal, High, Urgent }
 public enum EmailDeliveryStatus { Disabled, Sent, Failed }
 public enum RequestStatus { Submitted, Assigned, [Display(Name="In Progress")] InProgress, Resolved, Closed }
+public enum ResidentReview { Awaiting, Confirmed, NotFixed }
 public class ProblemRequest
 {
     public int Id { get; set; }
@@ -27,6 +28,11 @@ public class ProblemRequest
     public double? Longitude { get; set; }
     public DateTimeOffset? EstimatedCompletionAt { get; set; }
     public EmailDeliveryStatus ConfirmationEmailStatus { get; set; }
+    public DateTimeOffset? ResolvedAt { get; set; }
+    public ResidentReview ResidentReview { get; set; }
+    [MaxLength(1000)] public string? ResolutionNotes { get; set; }
+    public List<RequestPhoto> Photos { get; set; } = [];
+    public List<RequestSupporter> Supporters { get; set; } = [];
 }
 public class StatusHistory
 {
@@ -35,6 +41,27 @@ public class StatusHistory
     public ProblemRequest Request { get; set; } = null!;
     public RequestStatus Status { get; set; }
     public DateTimeOffset ChangedAt { get; set; }
+    [MaxLength(1000)] public string? Note { get; set; }
+}
+public class RequestPhoto
+{
+    public int Id { get; set; }
+    public int ProblemRequestId { get; set; }
+    public ProblemRequest Request { get; set; } = null!;
+    [MaxLength(120)] public string FileName { get; set; } = "";
+    [MaxLength(30)] public string ContentType { get; set; } = "";
+    public byte[] Content { get; set; } = [];
+    public bool IsResolution { get; set; }
+    public DateTimeOffset UploadedAt { get; set; }
+}
+public class RequestSupporter
+{
+    public int Id { get; set; }
+    public int ProblemRequestId { get; set; }
+    public ProblemRequest Request { get; set; } = null!;
+    [MaxLength(254)] public string Email { get; set; } = "";
+    [MaxLength(64)] public string EmailKey { get; set; } = "";
+    public DateTimeOffset JoinedAt { get; set; }
 }
 public static class Labels
 {

@@ -47,6 +47,24 @@ public class EmailService
                 Details(r),
                 r.ReferenceCode));
 
+    public Task<EmailDeliveryStatus> SendResolvedAsync(ProblemRequest r) =>
+        SendAsync(r.ResidentEmail, $"Your report has been resolved: {r.ReferenceCode}",
+            Wrap("The reported problem has been resolved",
+                $"<p>Your <strong>{WebUtility.HtmlEncode(Labels.CategoryName(r.Category))}</strong> report at " +
+                $"<strong>{WebUtility.HtmlEncode(r.Location)}</strong> has been marked resolved.</p>" +
+                Code(r.ReferenceCode) +
+                (string.IsNullOrWhiteSpace(r.ResolutionNotes) ? "" : $"<p>Repair details: {WebUtility.HtmlEncode(r.ResolutionNotes)}</p>") +
+                "<p>Open your tracking page to view the before-and-after photos and confirm the repair. If the problem is still present, select Still not fixed.</p>" +
+                Details(r), r.ReferenceCode));
+
+    public Task<EmailDeliveryStatus> SendClosedAsync(ProblemRequest r) =>
+        SendAsync(r.ResidentEmail, $"Your ticket is complete and closed: {r.ReferenceCode}",
+            Wrap("Your ticket has been closed",
+                $"<p>The municipal team has marked your <strong>{WebUtility.HtmlEncode(Labels.CategoryName(r.Category))}</strong> ticket " +
+                $"at <strong>{WebUtility.HtmlEncode(r.Location)}</strong> complete and closed.</p>" + Code(r.ReferenceCode) +
+                (string.IsNullOrWhiteSpace(r.ResolutionNotes) ? "" : $"<p>Repair details: {WebUtility.HtmlEncode(r.ResolutionNotes)}</p>") +
+                "<p>Open the tracking page to view the completed ticket and its before-and-after photos.</p>" + Details(r), r.ReferenceCode));
+
     private static string Details(ProblemRequest r)
     {
         var eta = r.EstimatedCompletionAt?.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") + " SAST";

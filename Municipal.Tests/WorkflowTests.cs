@@ -118,6 +118,8 @@ public class SqlFixture : IAsyncLifetime
             new WebApplicationFactory<Program>()
                 .WithWebHostBuilder(builder =>
                 {
+                    builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
+                        new Dictionary<string, string?> { ["Email:Enabled"] = "false" }));
                     builder
                         .UseSetting(
                             "environment",
@@ -509,7 +511,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
                 row.AssignedPerson);
 
             Assert.Equal(
-                (int)status + 1,
+                (int)status + 2,
                 row.History.Count);
         }
 
@@ -544,7 +546,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
             html);
 
         Assert.Contains(
-            "Status history",
+            "Progress timeline",
             html);
 
         Assert.Contains(
@@ -567,8 +569,9 @@ public class SqlWorkflowTests(SqlFixture fixture)
 
 
         Assert.Equal(
-            5,
+            6,
             persisted.History.Count);
+        Assert.Contains(persisted.History, entry => entry.Note != null && entry.Note.Contains("Assigned to Test Technician"));
 
         Assert.True(
             persisted.LastUpdatedAt >=
@@ -577,7 +580,7 @@ public class SqlWorkflowTests(SqlFixture fixture)
 
         var filtered =
             await admin.GetStringAsync(
-                "/Admin?category=0&priority=3&status=4&sort=oldest");
+                "/Admin?tab=resolved&category=0&priority=3&status=4&sort=oldest");
 
 
         Assert.Contains(

@@ -9,5 +9,13 @@
 <ol class="progress" aria-label="Workflow progress">
 @foreach (var stage in Enum.GetValues<RequestStatus>()) { <li class="@((int)stage <= (int)r.Status ? "reached" : "")" aria-current="@(stage == r.Status ? "step" : null)"><span aria-hidden="true">@((int)stage+1)</span>@Labels.Status(stage)@(stage == r.Status ? " (current)" : "")</li> }
 </ol><p class="hint">Completion time is a provisional prototype estimate.</p>
-<h3>Status history</h3><ul class="history">@foreach (var entry in r.History.OrderBy(x => x.ChangedAt)) { <li><strong>@Labels.Status(entry.Status)</strong><time datetime="@entry.ChangedAt.ToString("O")">@entry.ChangedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</time></li> }</ul></section>
+<h3>Progress timeline</h3><ol class="request-timeline">@foreach (var entry in r.History.OrderBy(x => x.ChangedAt)) { <li><span class="timeline-dot" aria-hidden="true"></span><div><strong>@Labels.Status(entry.Status)</strong><time datetime="@entry.ChangedAt.ToString("O")">@entry.ChangedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</time>@if (!string.IsNullOrWhiteSpace(entry.Note)) { <p>@entry.Note</p> }</div></li> }</ol>
+<partial name="_PhotoGallery" model="r" />
+@if (!string.IsNullOrWhiteSpace(r.ResolutionNotes)) { <h3>Repair details</h3><p>@r.ResolutionNotes</p> }
+@if (r.Status == RequestStatus.Resolved) {
+    <section class="review-section"><h3>Is the problem fixed?</h3><form asp-action="Review" method="post"><input type="hidden" name="ReferenceCode" value="@r.ReferenceCode" /><label for="review-email">Email from your original report</label><input id="review-email" name="Email" type="email" required maxlength="254" /><label for="review-note">Feedback <span class="optional">Optional</span></label><textarea id="review-note" name="Note" maxlength="1000" rows="3"></textarea><div class="review-actions"><button type="submit" class="button" name="Confirmed" value="true"><i data-lucide="circle-check" aria-hidden="true"></i><span>Yes, it's fixed</span></button><button type="submit" class="button secondary" name="Confirmed" value="false"><i data-lucide="rotate-ccw" aria-hidden="true"></i><span>Still not fixed</span></button></div></form></section>
+}
+@if (r.ResidentReview == ResidentReview.Confirmed) { <p class="notice success">Repair confirmed by the resident.</p> }
+@if (r.ResidentReview == ResidentReview.NotFixed) { <p class="notice error">The resident reported that the problem needs more work.</p> }
+</section>
 } else { <div class="tracking-empty"><div class="page-symbol"><i data-lucide="route" aria-hidden="true"></i></div><h2>No request selected</h2><p>Enter your report's reference code to see its latest status.</p><a class="heading-link" asp-action="Report">Report a new problem<i data-lucide="arrow-up-right" aria-hidden="true"></i></a></div> }

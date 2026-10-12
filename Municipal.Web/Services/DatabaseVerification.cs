@@ -7,7 +7,8 @@ namespace Municipal.Web.Services;
 
 public static class DatabaseVerification
 {
-    public static async Task RunAsync(IServiceProvider services, IConfiguration configuration, bool verifyStorage = false, bool verifyLogin = true)
+    public static async Task RunAsync(IServiceProvider services, IConfiguration configuration, bool verifyStorage = false,
+        bool verifyLogin = true, bool verifyFeatures = false)
     {
         using var scope = services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
@@ -19,6 +20,7 @@ public static class DatabaseVerification
             var history = await db.StatusHistory.CountAsync();
             var accounts = await db.Users.CountAsync();
             Console.WriteLine($"Database verified: {reports} reports, {history} history entries, {accounts} accounts.");
+            if (verifyFeatures) await VerifyCommunityFeaturesAsync(db, scope.ServiceProvider.GetRequiredService<RequestService>());
             if (!verifyLogin)
             {
                 Console.WriteLine("Shared database connection verified. No records or accounts were changed.");
@@ -46,6 +48,56 @@ public static class DatabaseVerification
         {
             await db.Database.CloseConnectionAsync();
         }
+    }
+
+    private static async Task VerifyCommunityFeaturesAsync(ApplicationDbContext db, RequestService requests)
+    {
+        await using var transaction = await db.Database.BeginTransactionAsync();
+        try
+        {
+            var image = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jf1sAAAAASUVORK5CYII=");
+            using var imageStream = new MemoryStream(image);
+            var created = await requests.SubmitAsync(new ReportForm
+            {
+                Category = Category.Pothole, MunicipalityCode = "CPT", Location = "[TEMPORARY VERIFICATION] Photo storage",
+                ResidentEmail = "verification@example.invalid", Latitude = -33.9249, Longitude = 18.4241,
+                Photos = [new FormFile(imageStream, 0, image.Length, "Photos", "verification.png")]
+            });
+            var stored = await db.RequestPhotos.SingleAsync(photo => photo.ProblemRequestId == created.Id);
+            if (stored.ContentType != "image/png" || !stored.Content.SequenceEqual(image))
+                throw new InvalidOperationException("Photo storage verification failed.");
+            var community = new CommunityService(db);
+            if (!await community.SupportAsync(new SupportForm { RequestId = created.Id, Email = "neighbour@example.invalid" })
+                || await community.SupportAsync(new SupportForm { RequestId = created.Id, Email = "NEIGHBOUR@example.invalid" }))
+                throw new InvalidOperationException("Affected count verification failed.");
+            foreach (var status in new[] { RequestStatus.Assigned, RequestStatus.InProgress, RequestStatus.Resolved })
+            {
+                var current = await requests.TrackAsync(created.ReferenceCode) ?? throw new InvalidOperationException();
+                using var proofStream = new MemoryStream(image);
+                await requests.UpdateAsync(new UpdateForm
+                {
+                    Id = current.Id, RowVersion = Convert.ToBase64String(current.RowVersion), Status = status,
+                    Priority = current.Priority, AssignedPerson = current.AssignedPerson, AssignedRole = current.AssignedRole,
+                    ProgressNote = "Temporary verification update.",
+                    ResolutionNotes = status == RequestStatus.Resolved ? "Temporary verification repair." : null,
+                    ResolutionPhotos = status == RequestStatus.Resolved
+                        ? [new FormFile(proofStream, 0, image.Length, "ResolutionPhotos", "repair.png")] : []
+                });
+            }
+            await community.ReviewAsync(new ReviewForm { ReferenceCode = created.ReferenceCode, Email = created.ResidentEmail, Confirmed = true });
+            var tracked = await requests.TrackAsync(created.ReferenceCode);
+            if (tracked?.Status != RequestStatus.Closed || tracked.Photos.Count != 2
+                || tracked.Photos.Count(photo => photo.IsResolution) != 1)
+                throw new InvalidOperationException("Repair evidence verification failed.");
+            await community.NearbyAsync("CPT", null, -33.9249, 18.4241);
+            await community.DashboardAsync("CPT");
+        }
+        finally
+        {
+            await transaction.RollbackAsync();
+            db.ChangeTracker.Clear();
+        }
+        Console.WriteLine("Verified photos, repair evidence, affected counts, timeline, resident confirmation and dashboard. All temporary records rolled back.");
     }
 
     private static async Task VerifyStorageAsync(ApplicationDbContext db, RequestService requests)

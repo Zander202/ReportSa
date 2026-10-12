@@ -1,0 +1,27 @@
+@model NearbyPage
+@inject Municipal.Web.Services.MunicipalityDirectory Municipalities
+@{ ViewData["Title"] = "Nearby reports"; ViewData["Map"] = true; }
+<div class="page-heading"><p class="eyebrow">Neighbourhood activity</p><h1>Nearby reports</h1></div>
+<form method="get" class="community-filters">
+    <div><label for="municipalityCode">Municipality</label><select id="municipalityCode" name="municipalityCode"><option value="">All municipalities</option>@foreach (var m in Municipalities.All.Where(m => m.Type != "C")) { <option value="@m.Code" selected="@(m.Code == Model.MunicipalityCode)">@m.Label</option> }</select></div>
+    <div><label for="category">Problem</label><select id="category" name="category"><option value="">All categories</option>@foreach (var c in Enum.GetValues<Category>()) { <option value="@((int)c)" selected="@(c == Model.Category)">@Labels.CategoryName(c)</option> }</select></div>
+    <button type="submit" class="button"><i data-lucide="filter" aria-hidden="true"></i><span>Apply</span></button>
+    <button type="button" class="button secondary" id="nearby-locate"><i data-lucide="locate-fixed" aria-hidden="true"></i><span>Near me</span></button>
+</form>
+<p id="nearby-feedback" role="status" aria-live="polite"></p>
+<form id="support-template" asp-action="Support" method="post" hidden></form>
+<div class="nearby-layout" id="nearby-page" data-url="@Url.Action("NearbyData")">
+    <div id="nearby-map" class="location-canvas" role="region" aria-label="Nearby report map"></div>
+    <section aria-label="Open reports"><div class="map-heading"><h2>Open reports</h2><span id="nearby-count">@Model.Reports.Count reports</span></div>
+        <div id="nearby-report-list">
+        @foreach (var r in Model.Reports) {
+            <article class="community-report" id="report-@r.Id" data-report-id="@r.Id" data-latitude="@r.Latitude?.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-longitude="@r.Longitude?.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                <div class="result-top"><h3>@Labels.CategoryName(r.Category)</h3><span class="status-badge">@Labels.Status(r.Status)</span></div><p>@r.Municipality</p>
+                <p class="muted">Reported @r.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy") <span class="affected-count">@r.Affected affected</span></p>
+                <form asp-action="Support" method="post" class="support-form"><input type="hidden" name="RequestId" value="@r.Id" /><div><label for="support-@r.Id">Your email</label><input id="support-@r.Id" name="Email" type="email" required maxlength="254" autocomplete="email" /></div><button type="submit" class="button secondary"><i data-lucide="users" aria-hidden="true"></i><span>I'm affected too</span></button></form>
+            </article>
+        }
+        @if (Model.Reports.Count == 0) { <p class="empty-result">No open reports in this selection.</p> }
+        </div>
+    </section>
+</div>

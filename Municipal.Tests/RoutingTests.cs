@@ -51,10 +51,14 @@ public class RoutingTests
             AssignedRole = "Roads <team>", Location = "<script>test</script>",
             EstimatedCompletionAt = new DateTimeOffset(2026, 10, 10, 8, 0, 0, TimeSpan.Zero)
         };
-        foreach (var update in new[] { false, true })
+        foreach (var notification in new[] { "receipt", "update", "resolved", "closed" })
         {
+            if (notification == "resolved") { request.Status = RequestStatus.Resolved; request.ResolutionNotes = "Repair <completed>"; }
+            if (notification == "closed") request.Status = RequestStatus.Closed;
             var capture = CaptureMessageAsync(listener);
-            var sent = update ? await service.SendStatusUpdateAsync(request) : await service.SendRequestReceivedAsync(request);
+            var sent = notification == "closed" ? await service.SendClosedAsync(request)
+                : notification == "resolved" ? await service.SendResolvedAsync(request)
+                : notification == "update" ? await service.SendStatusUpdateAsync(request) : await service.SendRequestReceivedAsync(request);
             Assert.Equal(EmailDeliveryStatus.Sent, sent);
             var message = await capture.WaitAsync(TimeSpan.FromSeconds(15));
             var parts = message.Split("\r\n\r\n", 2);
@@ -69,6 +73,20 @@ public class RoutingTests
             Assert.Contains("referenceCode=" + request.ReferenceCode, message);
             Assert.Contains("Roads &lt;team&gt;", message);
             Assert.DoesNotContain("<script>", message);
+            if (notification == "resolved")
+            {
+                Assert.Contains("reported problem has been resolved", message);
+                Assert.Contains("Repair &lt;completed&gt;", message);
+                Assert.Contains("before-and-after photos", message);
+                Assert.Contains("Still not fixed", message);
+            }
+            if (notification == "closed")
+            {
+                Assert.Contains("Your ticket has been closed", message);
+                Assert.Contains("complete and closed", message);
+                Assert.Contains("Repair &lt;completed&gt;", message);
+                Assert.Contains("before-and-after photos", message);
+            }
         }
     }
 

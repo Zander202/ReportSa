@@ -3,11 +3,21 @@ $ErrorActionPreference = 'Stop'
 $projectPath = Join-Path $PSScriptRoot '..\Municipal.Web'
 if (-not $SenderEmail) { $SenderEmail = Read-Host 'Gmail address that will send confirmations' }
 if ($SenderEmail -notmatch '^[^\s@]+@[^\s@]+\.[^\s@]+$') { throw 'Enter a valid sender email address.' }
-$securePassword = Read-Host 'Google app password (hidden)' -AsSecureString
-$passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
 try {
-    $appPassword = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer).Replace(' ', '')
-    if ($appPassword.Length -ne 16) { throw 'Enter the 16-character Google app password, not your normal account password.' }
+    do {
+        $securePassword = Read-Host '16-character Google app password (hidden)' -AsSecureString
+        $passwordPointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($securePassword)
+        try {
+            $appPassword = [regex]::Replace([Runtime.InteropServices.Marshal]::PtrToStringBSTR($passwordPointer), '\s', '')
+        } finally {
+            [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
+            $securePassword.Dispose()
+        }
+        if ($appPassword.Length -ne 16) {
+            $appPassword = $null
+            Write-Warning 'Use a Google app password from https://myaccount.google.com/apppasswords, not your regular Gmail password. Try again; Ctrl+C cancels.'
+        }
+    } while ($null -eq $appPassword)
     $smtpClient = [System.Net.Mail.SmtpClient]::new('smtp.gmail.com', 587)
     $smtpClient.EnableSsl = $true
     $smtpClient.Timeout = 15000
@@ -29,8 +39,6 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Gmail settings could not be saved.' }
     Write-Host 'Test email sent and Gmail settings saved locally. Restart the website to use them.'
 } finally {
-    [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($passwordPointer)
     $appPassword = $null
     $emailSettings = $null
-    $securePassword.Dispose()
 }

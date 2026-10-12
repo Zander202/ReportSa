@@ -7,12 +7,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     public DbSet<ProblemRequest> Requests => Set<ProblemRequest>();
     public DbSet<StatusHistory> StatusHistory => Set<StatusHistory>();
+    public DbSet<RequestPhoto> RequestPhotos => Set<RequestPhoto>();
+    public DbSet<RequestSupporter> RequestSupporters => Set<RequestSupporter>();
     protected override void OnModelCreating(ModelBuilder b)
     {
         base.OnModelCreating(b);
         var requests = b.Entity<ProblemRequest>();
         requests.HasIndex(x => x.ReferenceCode).IsUnique();
         requests.HasMany(x => x.History).WithOne(x => x.Request).HasForeignKey(x => x.ProblemRequestId).OnDelete(DeleteBehavior.Cascade);
+        requests.HasMany(x => x.Photos).WithOne(x => x.Request).HasForeignKey(x => x.ProblemRequestId).OnDelete(DeleteBehavior.Cascade);
+        requests.HasMany(x => x.Supporters).WithOne(x => x.Request).HasForeignKey(x => x.ProblemRequestId).OnDelete(DeleteBehavior.Cascade);
+        b.Entity<RequestSupporter>().HasIndex(x => new { x.ProblemRequestId, x.EmailKey }).IsUnique();
+        requests.HasIndex(x => new { x.MunicipalityCode, x.Status, x.ReportedAt });
         if (Database.IsNpgsql())
             requests.Property(x => x.RowVersion).IsConcurrencyToken().ValueGeneratedNever().HasColumnType("bytea");
         else

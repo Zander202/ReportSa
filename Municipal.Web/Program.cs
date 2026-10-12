@@ -59,15 +59,25 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddSingleton<AssignmentService>();
 builder.Services.AddSingleton<MunicipalityDirectory>();
+builder.Services.AddMemoryCache();
+builder.Services.AddHttpClient<MunicipalityLocationService>(client => client.Timeout = TimeSpan.FromSeconds(12));
 builder.Services.AddSingleton<EmailService>();
 builder.Services.AddScoped<RequestService>();
+builder.Services.AddScoped<PhotoUploadService>();
+builder.Services.AddScoped<CommunityService>();
 
 var app = builder.Build();
+if (args.Contains("--upgrade-schema"))
+{
+    await SetupUtility.UpgradeSchemaAsync(app.Services);
+    return;
+}
 
-if (args.Contains("--check-database") || args.Contains("--verify-database") || args.Contains("--verify-storage"))
+if (args.Contains("--check-database") || args.Contains("--verify-database") || args.Contains("--verify-storage") || args.Contains("--verify-features"))
 {
     await DatabaseVerification.RunAsync(app.Services, app.Configuration,
-        args.Contains("--verify-storage"), verifyLogin: !args.Contains("--check-database"));
+        args.Contains("--verify-storage"), verifyLogin: !args.Contains("--check-database") && !args.Contains("--verify-features"),
+        verifyFeatures: args.Contains("--verify-features"));
     return;
 }
 

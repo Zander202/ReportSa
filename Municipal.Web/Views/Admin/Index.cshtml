@@ -1,10 +1,13 @@
 @model IReadOnlyList<ProblemRequest>
+@inject Municipal.Web.Services.MunicipalityDirectory Municipalities
 @{
     ViewData["Title"] = "Admin Requests";
     var selectedCategory = ViewBag.Category as Category?;
     var selectedPriority = ViewBag.Priority as Priority?;
     var selectedStatus = ViewBag.Status as RequestStatus?;
     var selectedSort = ViewBag.Sort as string ?? "priority";
+    var metrics = (DashboardMetrics)ViewBag.Metrics;
+    var resolvedTab = (string)ViewBag.Tab == "resolved";
 }
 
 <div class="page-heading">
@@ -12,9 +15,18 @@
     <h1>Request dashboard</h1>
     <p class="lead">Review, filter and update reported service delivery problems.</p>
 </div>
+<section class="metric-strip" aria-label="Municipality performance">
+    <div><span>Open reports</span><strong>@metrics.Open</strong></div><div class="metric-alert"><span>Overdue</span><strong>@metrics.Overdue</strong></div><div><span>Resolved</span><strong>@metrics.Resolved</strong></div><div><span>Awaiting resident</span><strong>@metrics.AwaitingReview</strong></div><div><span>Average resolution</span><strong>@(metrics.AverageDays?.ToString("0.0") ?? "--") <small>days</small></strong></div>
+</section>
+<div class="request-tabs" role="navigation" aria-label="Ticket views">
+    <a asp-action="Index" asp-route-tab="active" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-sort="@selectedSort" class="@(!resolvedTab ? "selected" : "")" aria-current="@(!resolvedTab ? "page" : null)"><i data-lucide="inbox" aria-hidden="true"></i>Requests <span>@ViewBag.ActiveCount</span></a>
+    <a asp-action="Index" asp-route-tab="resolved" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-sort="@selectedSort" class="@(resolvedTab ? "selected" : "")" aria-current="@(resolvedTab ? "page" : null)"><i data-lucide="circle-check" aria-hidden="true"></i>Resolved <span>@ViewBag.ResolvedCount</span></a>
+</div>
 
 <section class="panel">
-    <form method="get" class="track-form">
+    <form method="get" class="community-filters">
+        <input type="hidden" name="tab" value="@ViewBag.Tab" />
+        <div><label for="municipalityCode">Municipality</label><select id="municipalityCode" name="municipalityCode"><option value="">All municipalities</option>@foreach (var m in Municipalities.All) { <option value="@m.Code" selected="@(m.Code == (string?)ViewBag.MunicipalityCode)">@m.Label</option> }</select></div>
         <div>
             <label for="category">Category</label>
             <select id="category" name="category">
@@ -39,7 +51,7 @@
             <label for="status">Status</label>
             <select id="status" name="status">
                 <option value="">All statuses</option>
-                @foreach (var status in Enum.GetValues<RequestStatus>())
+                @foreach (var status in Enum.GetValues<RequestStatus>().Where(s => resolvedTab ? s >= RequestStatus.Resolved : s < RequestStatus.Resolved))
                 {
                     <option value="@((int)status)" selected="@(selectedStatus == status)">@Labels.Status(status)</option>
                 }
@@ -53,14 +65,18 @@
                 <option value="newest" selected="@(selectedSort == "newest")">Newest first</option>
             </select>
         </div>
-        <button class="button" type="submit">Apply</button>
+        @if (!resolvedTab) { <div class="checkbox-field"><label><input type="checkbox" name="overdue" value="true" checked="@((bool)ViewBag.Overdue)" />Overdue only</label></div> }
+        <button class="button" type="submit"><i data-lucide="filter" aria-hidden="true"></i><span>Apply</span></button>
     </form>
     <p class="hint"><a asp-action="CreateUser">Create administrator user</a></p>
 </section>
+@if (metrics.Municipalities.Count > 0) {
+<section class="municipality-performance"><h2>Municipality performance</h2><div class="table-wrap"><table><thead><tr><th>Municipality</th><th>Open</th><th>Overdue</th><th>Resolved</th><th>Avg. days</th></tr></thead><tbody>@foreach (var m in metrics.Municipalities) { <tr><td>@m.Name</td><td>@m.Open</td><td class="@(m.Overdue > 0 ? "overdue-value" : "")">@m.Overdue</td><td>@m.Resolved</td><td>@(m.AverageDays?.ToString("0.0") ?? "--")</td></tr> }</tbody></table></div></section>
+}
 
 <section class="panel result">
     <div class="result-top">
-        <h2>Requests</h2>
+        <h2>@(resolvedTab ? "Resolved tickets" : "Active requests")</h2>
         <span class="status-badge">@Model.Count total</span>
     </div>
 
@@ -79,6 +95,7 @@
                         <th>Municipality</th>
                         <th>Priority</th>
                         <th>Status</th>
+                        <th>Before / After</th>
                         <th>Assigned role</th>
                         <th>Reported</th>
                         <th></th>
@@ -93,6 +110,7 @@
                             <td>@(string.IsNullOrWhiteSpace(request.MunicipalityName) ? "Not recorded" : request.MunicipalityName)</td>
                             <td>@request.Priority</td>
                             <td><span class="status-badge">@Labels.Status(request.Status)</span></td>
+                            <td><div class="dashboard-evidence">@foreach (var repair in new[] { false, true }) { <div><strong>@(repair ? "After" : "Before")</strong><div class="dashboard-thumbnails">@foreach (var photo in request.Photos.Where(p => p.IsResolution == repair)) { <a asp-controller="Requests" asp-action="Photo" asp-route-id="@photo.Id" target="_blank" rel="noopener noreferrer"><img src="@Url.Action("Photo", "Requests", new { id = photo.Id })" alt="@(repair ? "After repair" : "Before repair")" loading="lazy" /></a> }@if (!request.Photos.Any(p => p.IsResolution == repair)) { <span class="muted">No photo</span> }</div></div> }</div></td>
                             <td>@request.AssignedRole<br /><span class="muted">@request.AssignedPerson</span></td>
                             <td>@request.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</td>
                             <td><a asp-action="Edit" asp-route-id="@request.Id">Manage</a></td>

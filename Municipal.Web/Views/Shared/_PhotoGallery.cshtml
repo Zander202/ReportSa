@@ -1,0 +1,11 @@
+@model ProblemRequest
+@foreach (var kind in new[] { false, true })
+{
+    var photos = Model.Photos.Where(p => p.IsResolution == kind).ToList();
+    if (photos.Count == 0) { continue; }
+    <section class="evidence-section"><h3>@(kind ? "Repair evidence" : "Problem photos")</h3><div class="evidence-grid">
+    @foreach (var photo in photos) {
+        <a asp-controller="Requests" asp-action="Photo" asp-route-id="@photo.Id" asp-route-referenceCode="@Model.ReferenceCode" target="_blank" rel="noopener noreferrer"><img src="@Url.Action("Photo", "Requests", new { id = photo.Id, referenceCode = Model.ReferenceCode })" alt="@(kind ? "Repair evidence" : "Reported problem")" loading="lazy" /></a>
+    }
+    </div></section>
+}
