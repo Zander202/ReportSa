@@ -19,12 +19,12 @@
         <div class="sidebar-heading"><i data-lucide="clipboard-list" aria-hidden="true"></i><h2>Your report</h2></div>
         <ol class="report-steps" aria-label="Report sections">
             <li data-step="problem"><span class="step-number">1</span><div><strong>The problem</strong><small>Category and details</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
-            <li data-step="place"><span class="step-number">2</span><div><strong>The location</strong><small>Ur municipality</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
+            <li data-step="place"><span class="step-number">2</span><div><strong>The location</strong><small>Your municipality</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
             <li data-step="contact"><span class="step-number">3</span><div><strong>Your contact</strong><small>Email confirmation</small></div><i data-lucide="check" class="step-check" aria-hidden="true"></i></li>
         </ol>
         <div class="report-summary" aria-live="polite">
             <p class="eyebrow">At a glance</p>
-            <dl><div><dt>Problem</dt><dd id="summary-category">Not selected</dd></div><div><dt>Ur municipality</dt><dd id="summary-municipality">Not selected</dd></div><div><dt>GPS position</dt><dd id="summary-gps">Not attached</dd></div></dl>
+            <dl><div><dt>Problem</dt><dd id="summary-category">Not selected</dd></div><div><dt>Your municipality</dt><dd id="summary-municipality">Not selected</dd></div><div><dt>GPS position</dt><dd id="summary-gps">Not attached</dd></div></dl>
         </div>
         <div class="sidebar-note"><i data-lucide="ticket" aria-hidden="true"></i><h3>Keep your reference</h3><p>After submitting, you'll receive a reference code to follow your request.</p></div>
         <div class="sidebar-note"><i data-lucide="shield-check" aria-hidden="true"></i><h3>No account needed</h3><p>Your email is used for updates about this report.</p></div>
@@ -52,10 +52,10 @@
             <span asp-validation-for="Photos" class="validation"></span>
         </section>
         <section class="form-section" id="place-section">
-            <div class="section-heading"><span class="section-number">02</span><div><h2>Where is the problem?</h2><p>Find ur municipality using your current location.</p></div></div>
+            <div class="section-heading"><span class="section-number">02</span><div><h2>Where is the problem?</h2><p>Find your municipality using your current location.</p></div></div>
             <label asp-for="MunicipalityCode"></label>
             <select asp-for="MunicipalityCode" required>
-                <option value="">Select ur municipality</option>
+                <option value="">Select Your municipality</option>
                 @foreach (var province in Municipalities.All.GroupBy(x => x.Province))
                 {
                     <optgroup label="@province.Key">@foreach (var municipality in province) { <option value="@municipality.Code">@municipality.Label</option> }</optgroup>
