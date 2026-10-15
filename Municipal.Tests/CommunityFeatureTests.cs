@@ -30,6 +30,42 @@ public class PhotoValidationTests
 
 public class CommunityWorkflowTests(SqlFixture fixture) : IClassFixture<SqlFixture>
 {
+    [Fact] public async Task DashboardPagesKeepTotalsAndStableOrderWithoutDroppingReports()
+    {
+        using var scope = fixture.App.Services.CreateScope();
+        var services = scope.ServiceProvider;
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        var code = Guid.NewGuid().ToString("N")[..10];
+        var reported = DateTimeOffset.UtcNow;
+        var reports = Enumerable.Range(0, 27).Select(_ => new ProblemRequest
+        {
+            ReferenceCode = RequestService.NewReference(), MunicipalityCode = code,
+            MunicipalityName = "Pagination test", ReportedAt = reported, LastUpdatedAt = reported,
+            Category = Category.Pothole, Status = RequestStatus.Submitted
+        }).ToArray();
+        db.Requests.AddRange(reports);
+        await db.SaveChangesAsync();
+        var controller = new Municipal.Web.Controllers.AdminController(db,
+            services.GetRequiredService<RequestService>(),
+            services.GetRequiredService<Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser>>(),
+            services.GetRequiredService<Microsoft.AspNetCore.Identity.RoleManager<Microsoft.AspNetCore.Identity.IdentityRole>>());
+        async Task<List<ProblemRequest>> Page(int page)
+        {
+            var result = Assert.IsType<Microsoft.AspNetCore.Mvc.ViewResult>(await controller.Index(
+                Category.Pothole, null, null, municipalityCode: code, page: page));
+            return Assert.IsType<List<ProblemRequest>>(result.Model);
+        }
+        var first = await Page(1);
+        var second = await Page(2);
+        Assert.Equal(25, first.Count);
+        Assert.Equal(2, second.Count);
+        Assert.Equal(27, controller.ViewData["TotalCount"]);
+        Assert.Equal(27, controller.ViewData["ActiveCount"]);
+        Assert.Equal(reports.Select(r => r.Id).Order(), first.Concat(second).Select(r => r.Id));
+        Assert.Equal(second.Select(r => r.Id), (await Page(int.MaxValue)).Select(r => r.Id));
+        Assert.Equal(first.Select(r => r.Id), (await Page(-1)).Select(r => r.Id));
+    }
+
     private static ReportForm Report() => new() { MunicipalityCode = "CPT", Category = Category.WaterLeak,
         Location = "Private test location", ResidentEmail = "owner@example.invalid", Latitude = -33.9249, Longitude = 18.4241,
         Photos = [PhotoValidationTests.File(PhotoValidationTests.Image)] };

@@ -98,6 +98,10 @@ public class RequestService
         throw new InvalidOperationException("Could not allocate a reference code. Please retry.");
     }
 
+    // The receipt needs no history or photo metadata.
+    public Task<ProblemRequest?> ReceiptAsync(string code) =>
+        db.Requests.AsNoTracking().SingleOrDefaultAsync(x => x.ReferenceCode == code);
+
     public async Task<ProblemRequest?> TrackAsync(string code)
     {
         code = code.Trim().ToUpperInvariant();

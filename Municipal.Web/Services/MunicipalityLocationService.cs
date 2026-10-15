@@ -134,9 +134,9 @@ public class MunicipalityLocationService(HttpClient client, MunicipalityDirector
     private async Task<string?> FindRoadAsync(double latitude, double longitude, CancellationToken cancellationToken)
     {
         var endpoint = configuration["MunicipalityLocation:RoadUrl"] ?? "https://overpass-api.de/api/interpreter";
-        var query = FormattableString.Invariant($"[out:json][timeout:8];way(around:30,{latitude:R},{longitude:R})[highway][name];out tags geom;");
+        var query = FormattableString.Invariant($"[out:json][timeout:3];way(around:30,{latitude:R},{longitude:R})[highway][name];out tags geom;");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        timeout.CancelAfter(TimeSpan.FromSeconds(10));
+        timeout.CancelAfter(TimeSpan.FromSeconds(4));
         using var request = new HttpRequestMessage(HttpMethod.Get, QueryHelpers.AddQueryString(endpoint, "data", query));
         request.Headers.UserAgent.ParseAdd("ReportSA/1.0");
         using var response = await client.SendAsync(request, timeout.Token);

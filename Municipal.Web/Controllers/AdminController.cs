@@ -20,7 +20,7 @@ public class AdminController(
         Category? category,
         Priority? priority,
         RequestStatus? status,
-        string sort = "priority", string? municipalityCode = null, bool overdue = false, string tab = "active")
+        string sort = "priority", string? municipalityCode = null, bool overdue = false, string tab = "active", int page = 1)
     {
         if (!ModelState.IsValid ||
             (category.HasValue && !Enum.IsDefined(category.Value)) ||
@@ -34,8 +34,6 @@ public class AdminController(
 
         var query = db.Requests.AsNoTracking().AsQueryable();
         if (!string.IsNullOrEmpty(municipalityCode)) query = query.Where(x => x.MunicipalityCode == municipalityCode);
-        ViewBag.ActiveCount = await query.CountAsync(x => x.Status < RequestStatus.Resolved);
-        ViewBag.ResolvedCount = await query.CountAsync(x => x.Status >= RequestStatus.Resolved);
         query = tab == "resolved" ? query.Where(x => x.Status >= RequestStatus.Resolved)
             : query.Where(x => x.Status < RequestStatus.Resolved);
         if (overdue) query = query.Where(x => x.Status < RequestStatus.Resolved && x.EstimatedCompletionAt < DateTimeOffset.UtcNow);
@@ -68,9 +66,20 @@ public class AdminController(
         ViewBag.Tab = tab;
         ViewBag.MunicipalityCode = municipalityCode;
         ViewBag.Overdue = overdue;
-        ViewBag.Metrics = await new CommunityService(db).DashboardAsync(municipalityCode);
+        var metrics = await new CommunityService(db).DashboardAsync(municipalityCode);
+        ViewBag.Metrics = metrics;
+        ViewBag.ActiveCount = metrics.Open;
+        ViewBag.ResolvedCount = metrics.Resolved;
 
-        var requests = await query.ToListAsync();
+        const int pageSize = 25;
+        var total = await query.CountAsync();
+        var totalPages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
+        page = Math.Clamp(page, 1, totalPages);
+        ViewBag.Page = page;
+        ViewBag.TotalPages = totalPages;
+        ViewBag.TotalCount = total;
+        var requests = await ((IOrderedQueryable<ProblemRequest>)query).ThenBy(x => x.Id)
+            .Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
         var ids = requests.Select(r => r.Id).ToList();
         var photos = await db.RequestPhotos.AsNoTracking().Where(p => ids.Contains(p.ProblemRequestId))
             .Select(p => new RequestPhoto { Id = p.Id, ProblemRequestId = p.ProblemRequestId,

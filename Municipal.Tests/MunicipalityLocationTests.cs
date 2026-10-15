@@ -95,34 +95,109 @@ public class MunicipalityLocationTests
         Assert.Contains("Darling Street", precise.Address);
     }
 
+    private sealed class LookupHandler(string? boundary, string? address, string? roads = null) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            var body = request.RequestUri!.AbsolutePath.EndsWith("/reverse") ? address : boundary;
+            if (request.RequestUri.AbsolutePath.EndsWith("/interpreter"))
+            {
+                body = roads;
+                if (body is null && address is not null)
+                {
+                    using var json = System.Text.Json.JsonDocument.Parse(address);
+                    var street = json.RootElement.GetProperty("features").EnumerateArray()
+                        .Select(f => f.GetProperty("properties"))
+                        .Where(p => p.TryGetProperty("street", out var s) && s.ValueKind == System.Text.Json.JsonValueKind.String)
+                        .Select(p => p.GetProperty("street").GetString()).FirstOrDefault();
+                    body = street is null ? "{\"elements\":[]}" : System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        elements = new[] { new { tags = new { name = street }, geometry = new[] {
+                            new { lat = -33.9259, lon = 18.4241 }, new { lat = -33.9239, lon = 18.4241 } } } }
+                    });
+                }
+            }
+            return Task.FromResult(new HttpResponseMessage(body is null ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK)
+            {
+                Content = new StringContent(body ?? "{}", Encoding.UTF8, "application/json")
+            });
+        }
+    }
+
+    [Fact]
+    public async Task SearchReturnsSelectedAddressCoordinatesAndRejectsInvalidOrForeignPlaces()
+    {
+        const string response = """
+            {"features":[
+              {"properties":{"housenumber":"12","street":"Darling Street","city":"Cape Town","countrycode":"ZA"},"geometry":{"coordinates":[18.4241,-33.9249]}},
+              {"properties":{"name":"Foreign place","countrycode":"US"},"geometry":{"coordinates":[-70,40]}},
+              {"properties":{"name":"Invalid place","countrycode":"ZA"},"geometry":{"coordinates":[18,120]}},
+              {"properties":{"name":"Missing coordinates","countrycode":"ZA"}}
+            ]}
+            """;
+        using var handler = new LookupHandler(response, null);
+        using var client = new HttpClient(handler);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var service = new MunicipalityLocationService(client, new MunicipalityDirectory(), cache,
+            new ConfigurationBuilder().Build());
+        var results = await service.SearchAsync("12 Darling Street", CancellationToken.None);
+        var place = Assert.Single(results);
+        Assert.Equal("12 Darling Street, Cape Town", place.Address);
+        Assert.Equal(-33.9249, place.Latitude);
+        Assert.Equal(18.4241, place.Longitude);
+        Assert.Empty(await service.SearchAsync("ab", CancellationToken.None));
+    }
+
     [Fact]
     public async Task PinLookupFindsStreetEvenWhenClosestPoiHasNoAddress()
     {
         const string response = """
-            {"features":[
-                {"properties":{"name":"Park","type":"house","city":"Cape Town","county":"City of Cape Town","state":"Western Cape","countrycode":"ZA"}},
-                {"properties":{"street":"Darling Street","city":"Cape Town","county":"City of Cape Town","state":"Western Cape","countrycode":"ZA"}}
-            ]}
+            {"features":[{"properties":{"name":"Shop","countrycode":"ZA"}},
+            {"properties":{"street":"Darling Street","city":"Cape Town","county":"City of Cape Town","state":"Western Cape","countrycode":"ZA"}}]}
             """;
         using var handler = new LookupHandler(null, response);
         using var client = new HttpClient(handler);
         using var cache = new MemoryCache(new MemoryCacheOptions());
         var service = new MunicipalityLocationService(client, new MunicipalityDirectory(), cache,
             new ConfigurationBuilder().Build());
-        var place = await service.ResolveAsync(-33.9249, 18.4241, CancellationToken.None);
-        Assert.Equal("Darling Street, Cape Town, Western Cape", place.Address);
-        Assert.Equal("CPT", place.Municipality?.Code);
+        var result = await service.ResolveAsync(-33.9249, 18.4241, CancellationToken.None);
+        Assert.Equal("Darling Street, Cape Town, Western Cape", result.Address);
+        Assert.Equal("CPT", result.Municipality?.Code);
     }
 
-    private sealed class LookupHandler(string? boundary, string? address) : HttpMessageHandler
+    [Theory]
+    [InlineData(18.4241, 18.4243, "Begonia Drive")]
+    [InlineData(18.4241, 18.42411, null)]
+    [InlineData(18.4251, 18.4261, null)]
+    public async Task RoadGeometryOverridesWrongGeocoderStreetAndRejectsAmbiguousOrDistantRoads(
+        double begoniaLongitude, double jacarandaLongitude, string? expected)
     {
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            var body = request.RequestUri!.AbsolutePath.EndsWith("/reverse") ? address : boundary;
-            return Task.FromResult(new HttpResponseMessage(body is null ? HttpStatusCode.ServiceUnavailable : HttpStatusCode.OK)
-            {
-                Content = new StringContent(body ?? "{}", Encoding.UTF8, "application/json")
-            });
-        }
+        var roads = System.Text.Json.JsonSerializer.Serialize(new { elements = new[] {
+            new { tags = new { name = "Jacaranda Crescent" }, geometry = new[] {
+                new { lat = -33.9259, lon = jacarandaLongitude }, new { lat = -33.9239, lon = jacarandaLongitude } } },
+            new { tags = new { name = "Begonia Drive" }, geometry = new[] {
+                new { lat = -33.9259, lon = begoniaLongitude }, new { lat = -33.9239, lon = begoniaLongitude } } }
+        } });
+        using var handler = new LookupHandler(null, AddressResponse.Replace("Darling Street", "Jacaranda Crescent"), roads);
+        using var client = new HttpClient(handler);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var service = new MunicipalityLocationService(client, new MunicipalityDirectory(), cache, new ConfigurationBuilder().Build());
+        var result = await service.ResolveAsync(-33.9249, 18.4241, CancellationToken.None);
+        if (expected is null) Assert.Null(result.Address);
+        else { Assert.StartsWith(expected, result.Address); Assert.DoesNotContain("Jacaranda", result.Address!); }
+        Assert.Equal("CPT", result.Municipality?.Code);
+    }
+
+    [Fact]
+    public async Task UnavailableRoadDataNeverFallsBackToUnverifiedStreet()
+    {
+        using var handler = new LookupHandler(null, AddressResponse, "{}");
+        using var client = new HttpClient(handler);
+        using var cache = new MemoryCache(new MemoryCacheOptions());
+        var service = new MunicipalityLocationService(client, new MunicipalityDirectory(), cache, new ConfigurationBuilder().Build());
+        var result = await service.ResolveAsync(-33.9249, 18.4241, CancellationToken.None);
+        Assert.Null(result.Address);
+        Assert.Equal("CPT", result.Municipality?.Code);
+        Assert.Contains("Cape Town", result.Area);
     }
 }

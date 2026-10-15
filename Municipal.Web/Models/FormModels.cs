@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Municipal.Web.Models;
 public class ReportForm
 {
-    [Required, StringLength(10), Display(Name="Ur municipality")] public string MunicipalityCode { get; set; } = "";
+    [Required, StringLength(10), Display(Name="Your municipality")] public string MunicipalityCode { get; set; } = "";
     [Range(-90, 90), ModelBinder(BinderType = typeof(CoordinateModelBinder))] public double? Latitude { get; set; }
     [Range(-180, 180), ModelBinder(BinderType = typeof(CoordinateModelBinder))] public double? Longitude { get; set; }
     [Required, EnumDataType(typeof(Category))] public Category? Category { get; set; }
     [Required, StringLength(200), Display(Name="Location")] public string Location { get; set; } = "";
     [StringLength(1000), Display(Name="Short description (optional)")] public string? Description { get; set; }
-   
+
     [Required, EmailAddress, StringLength(254), Display(Name = "Email address")] public string ResidentEmail { get; set; } = "";
     public List<IFormFile> Photos { get; set; } = [];
 }

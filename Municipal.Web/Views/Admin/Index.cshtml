@@ -77,7 +77,7 @@
 <section class="panel result">
     <div class="result-top">
         <h2>@(resolvedTab ? "Resolved tickets" : "Active requests")</h2>
-        <span class="status-badge">@Model.Count total</span>
+        <span class="status-badge">@ViewBag.TotalCount total</span>
     </div>
 
     @if (Model.Count == 0)
@@ -121,3 +121,17 @@
         </div>
     }
 </section>
+@if ((int)ViewBag.TotalPages > 1)
+{
+    <nav aria-label="Report pages" class="community-filters">
+        @if ((int)ViewBag.Page > 1)
+        {
+            <a class="button secondary" asp-action="Index" asp-route-page="@((int)ViewBag.Page - 1)" asp-route-tab="@ViewBag.Tab" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-status="@selectedStatus" asp-route-sort="@selectedSort" asp-route-overdue="@ViewBag.Overdue">Previous</a>
+        }
+        <span>Page @ViewBag.Page of @ViewBag.TotalPages</span>
+        @if ((int)ViewBag.Page < (int)ViewBag.TotalPages)
+        {
+            <a class="button secondary" asp-action="Index" asp-route-page="@((int)ViewBag.Page + 1)" asp-route-tab="@ViewBag.Tab" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-status="@selectedStatus" asp-route-sort="@selectedSort" asp-route-overdue="@ViewBag.Overdue">Next</a>
+        }
+    </nav>
+}

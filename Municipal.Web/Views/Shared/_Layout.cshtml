@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/polish.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/community.css" asp-append-version="true" />
-    @if (ViewData["Map"] is true) { <link rel="stylesheet" href="~/js/vendor/leaflet/leaflet.css" /> }
+    @if (ViewData["Map"] is true) { <link rel="stylesheet" href="~/js/vendor/leaflet/leaflet.css" asp-append-version="true" /> }
     <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -100,9 +100,9 @@
         </div>
     </footer>
 
-    <script src="~/js/vendor/lucide.min.js" defer></script>
+    <script src="~/js/vendor/reportsa-icons.js" asp-append-version="true" defer></script>
     <script src="~/js/site.js" asp-append-version="true" defer></script>
-    @if (ViewData["Map"] is true) { <script src="~/js/vendor/leaflet/leaflet.js" defer></script> }
+    @if (ViewData["Map"] is true) { <script src="~/js/vendor/leaflet/leaflet.js" asp-append-version="true" defer></script> }
     <script src="~/js/community.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

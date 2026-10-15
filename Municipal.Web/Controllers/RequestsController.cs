@@ -34,13 +34,13 @@ public class RequestsController(RequestService service, MunicipalityDirectory mu
             return Json(new
             {
                 code = place.Municipality?.Code, label = place.Municipality?.Label, address = place.Address, area = place.Area,
-                message = place.Municipality is null ? "Location found. Select ur municipality manually."
+                message = place.Municipality is null ? "Location found. Select your municipality manually."
                     : place.Address is null ? "Municipality found. The street at this pin could not be verified. Enter the address or select a place suggestion." : null
             });
         }
         catch (Exception error) when (error is HttpRequestException or JsonException or OperationCanceledException)
         {
-            return StatusCode(503, new { message = "Municipality lookup is unavailable. Select ur municipality below." });
+            return StatusCode(503, new { message = "Municipality lookup is unavailable. Select your municipality below." });
         }
     }
     [HttpPost, RequestSizeLimit(16 * 1024 * 1024)] public async Task<IActionResult> Report(ReportForm form)
@@ -58,7 +58,7 @@ public class RequestsController(RequestService service, MunicipalityDirectory mu
     [HttpGet] public async Task<IActionResult> Confirmation()
     {
         if (TempData["SubmittedReference"] is not string code) return RedirectToAction(nameof(Report));
-        var request = await service.TrackAsync(code);
+        var request = await service.ReceiptAsync(code);
         if (request is null) return RedirectToAction(nameof(Report));
         return View(request);
     }

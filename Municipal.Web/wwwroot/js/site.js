@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pinnedPosition = false;
     let lookupController = null;
     let cancelRefinement = null;
-    const preferredAccuracy = 10;
+    const preferredAccuracy = 25;
     const addressAccuracyLimit = 100;
     const cancelLocationRequest = () => {
         generation++;
@@ -126,7 +126,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             cancelRefinement = () => finish(null);
             showAccuracy();
-            timer = setTimeout(() => finish(best), 12000);
+            // Give GPS a short chance to improve without holding up the form.
+            timer = setTimeout(() => finish(best), 2500);
             watchId = navigator.geolocation.watchPosition(fix => {
                 if (finished || !Number.isFinite(fix.coords.latitude) || !Number.isFinite(fix.coords.longitude)) return;
                 if (validAccuracy(fix) && (!validAccuracy(best) || fix.coords.accuracy < best.coords.accuracy)) {
@@ -135,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showAccuracy();
                 }
                 if (validAccuracy(best) && best.coords.accuracy <= preferredAccuracy) finish(best);
-            }, () => finish(best), { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+            }, () => finish(best), { enableHighAccuracy: true, timeout: 2500, maximumAge: 0 });
         });
     };
     const applyPosition = position => {
@@ -156,11 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     const locationErrorMessage = error => {
         const messages = {
-            1: 'Location permission was declined. Allow location in your browser settings, or select ur municipality manually.',
-            2: 'Your device could not find a location. Try again, or select ur municipality manually.',
-            3: 'Finding your location took too long. Try again, or select ur municipality manually.'
+            1: 'Location permission was declined. Allow location in your browser settings, or select your municipality manually.',
+            2: 'Your device could not find a location. Try again, or select your municipality manually.',
+            3: 'Finding your location took too long. Try again, or select your municipality manually.'
         };
-        return messages[error.code] || 'Location is unavailable. Select ur municipality manually.';
+        return messages[error.code] || 'Location is unavailable. Select your municipality manually.';
     };
     const refreshLocationDetails = () => {
         details.hidden = false;
@@ -207,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const response = await fetch(url, { signal: lookupController.signal });
                     const result = await response.json();
                     if (generation !== currentGeneration) return;
-                    if (!response.ok) throw new Error(result.message || 'Municipality lookup is unavailable. Select ur municipality manually.');
+                    if (!response.ok) throw new Error(result.message || 'Municipality lookup is unavailable. Select your municipality manually.');
                     if (result.code && Array.from(municipality.options).some(option => option.value === result.code)) {
                         municipality.value = result.code;
                         detectedMunicipality = result.code;
@@ -221,10 +222,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     const approximate = !Number.isFinite(accuracy) || accuracy < 0 || accuracy > addressAccuracyLimit;
                     feedback.textContent = approximate
-                        ? `Approximate location${Number.isFinite(accuracy) && accuracy >= 0 ? ` (within about ${Math.round(accuracy)} m)` : ''}. Check ur municipality and enter the problem's street or landmark.`
+                        ? `Approximate location${Number.isFinite(accuracy) && accuracy >= 0 ? ` (within about ${Math.round(accuracy)} m)` : ''}. Check your municipality and enter the problem's street or landmark.`
                         : result.message || (pinnedPosition
-                            ? `Nearest mapped road: ${result.address}. Check the address. Ur municipality: ${result.label}.`
-                            : `GPS accuracy: within about ${Math.ceil(accuracy)} m. Nearby street found; check that it matches the problem. Ur municipality: ${result.label}.`);
+                            ? `Nearest mapped road: ${result.address}. Check the address. Your municipality: ${result.label}.`
+                            : `GPS accuracy: within about ${Math.ceil(accuracy)} m. Nearby street found; check that it matches the problem. Your municipality: ${result.label}.`);
                     updateSteps();
                     report.dispatchEvent(new Event('location-resolved'));
                 } catch (error) {
@@ -257,7 +258,14 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.textContent = 'Waiting for location permission from your browser...';
             navigator.geolocation.getCurrentPosition(async position => {
                 if (generation !== currentGeneration) return;
-                report.dispatchEvent(new CustomEvent('position-found', { detail: position.coords }));
+                if (!applyPosition(position)) {
+                    cancelLocationRequest();
+                    feedback.textContent = 'Your device returned an invalid location. Try again.';
+                    return;
+                }
+                municipality.value = '';
+                detectedMunicipality = '';
+                updateSteps();
                 const best = await refinePosition(position);
                 if (best && generation === currentGeneration) await resolvePosition(best, currentGeneration);
             }, error => {
@@ -265,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cancelLocationRequest();
                 feedback.textContent = locationErrorMessage(error);
                 if (latitude.value) feedback.textContent += ' Your last GPS position has been kept.';
-            }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+            }, { enableHighAccuracy: true, timeout: 8000, maximumAge: 15000 });
         });
         municipality.addEventListener('change', () => {
             cancelLocationRequest();
@@ -362,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (current !== searchGeneration || error.name === 'AbortError') return;
                     searchStatus.textContent = 'Address search is unavailable. Your typed address has been kept.';
                 }
-            }, 450);
+            }, 300);
         });
         address.addEventListener('keydown', event => {
             if (event.key === 'Escape') { dismiss(); return; }

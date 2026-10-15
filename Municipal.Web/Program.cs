@@ -60,7 +60,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Services.AddSingleton<AssignmentService>();
 builder.Services.AddSingleton<MunicipalityDirectory>();
 builder.Services.AddMemoryCache();
-builder.Services.AddHttpClient<MunicipalityLocationService>(client => client.Timeout = TimeSpan.FromSeconds(12));
+builder.Services.AddResponseCompression(options => options.EnableForHttps = true);
+builder.Services.AddHttpClient<MunicipalityLocationService>(client => client.Timeout = TimeSpan.FromSeconds(6));
 builder.Services.AddSingleton<EmailService>();
 builder.Services.AddScoped<RequestService>();
 builder.Services.AddScoped<PhotoUploadService>();
@@ -99,7 +100,19 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+// Compress public assets only; pages can contain private data and antiforgery tokens.
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/css")
+    || context.Request.Path.StartsWithSegments("/js")
+    || context.Request.Path.StartsWithSegments("/images"), assets => assets.UseResponseCompression());
+app.UseStaticFiles(new StaticFileOptions
+{
+    OnPrepareResponse = context =>
+    {
+        // Versioned URLs change with the file contents, so long caching is safe.
+        context.Context.Response.Headers.CacheControl = context.Context.Request.Query.ContainsKey("v")
+            ? "public,max-age=31536000,immutable" : "public,max-age=3600";
+    }
+});
 
 app.UseRouting();
 

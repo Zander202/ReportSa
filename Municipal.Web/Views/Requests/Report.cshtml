@@ -55,7 +55,7 @@
             <div class="section-heading"><span class="section-number">02</span><div><h2>Where is the problem?</h2><p>Find your municipality using your current location.</p></div></div>
             <label asp-for="MunicipalityCode"></label>
             <select asp-for="MunicipalityCode" required>
-                <option value="">Select Your municipality</option>
+                <option value="">Select your municipality</option>
                 @foreach (var province in Municipalities.All.GroupBy(x => x.Province))
                 {
                     <optgroup label="@province.Key">@foreach (var municipality in province) { <option value="@municipality.Code">@municipality.Label</option> }</optgroup>
