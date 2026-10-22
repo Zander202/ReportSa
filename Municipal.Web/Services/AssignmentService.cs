@@ -9,6 +9,14 @@ public class AssignmentService(IConfiguration config)
     private static readonly string[] DemoStaff =
         ["Thabo Molefe", "Naledi Nkosi", "Sipho Dlamini", "Lerato Mokoena", "Ayesha Jacobs", "Pieter Botha", "Nomsa Khumalo", "Zanele Mthembu"];
 
+    public static string PersonName(string person)
+    {
+        const string suffix = "(demo staff)";
+        var name = person.Trim();
+        return name.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)
+            ? name[..^suffix.Length].TrimEnd() : name;
+    }
+
     public static DateTimeOffset Estimate(Category category, DateTimeOffset reportedAt) =>
         reportedAt.AddHours(category switch
         {
@@ -42,7 +50,7 @@ public class AssignmentService(IConfiguration config)
         }
 
         if (string.IsNullOrWhiteSpace(person) || person.Trim().Equals("To be assigned", StringComparison.OrdinalIgnoreCase))
-            person = DemoStaff[System.Security.Cryptography.RandomNumberGenerator.GetInt32(DemoStaff.Length)] + " (demo staff)";
-        return new Assignment(role.Trim(), person.Trim());
+            person = DemoStaff[System.Security.Cryptography.RandomNumberGenerator.GetInt32(DemoStaff.Length)];
+        return new Assignment(role.Trim(), PersonName(person));
     }
 }

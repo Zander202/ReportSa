@@ -413,7 +413,8 @@ public class SqlWorkflowTests(SqlFixture fixture)
                 saved.History);
             Assert.Equal("CPT", saved.MunicipalityCode);
             Assert.Contains("Cape Town", saved.MunicipalityName);
-            Assert.Contains("(demo staff)", saved.AssignedPerson);
+            Assert.False(string.IsNullOrWhiteSpace(saved.AssignedPerson));
+            Assert.DoesNotContain("(demo staff)", saved.AssignedPerson);
             Assert.Equal(saved.ReportedAt.AddHours(120), saved.EstimatedCompletionAt);
             Assert.Equal(-33.9249, saved.Latitude);
             Assert.Equal(18.4241, saved.Longitude);

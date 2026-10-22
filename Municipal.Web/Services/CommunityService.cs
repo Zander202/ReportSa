@@ -90,7 +90,8 @@ public class CommunityService(ApplicationDbContext db)
         var now = DateTimeOffset.UtcNow;
         var durations = rows.Where(r => r.Status >= RequestStatus.Resolved && r.Resolved.HasValue)
             .Select(r => Math.Max(0, (r.Resolved!.Value - r.ReportedAt).TotalDays)).ToList();
-        var groups = rows.GroupBy(r => r.MunicipalityName).Select(group =>
+        var groups = rows.Where(r => !string.IsNullOrWhiteSpace(r.MunicipalityName))
+            .GroupBy(r => r.MunicipalityName).Select(group =>
         {
             var times = group.Where(r => r.Status >= RequestStatus.Resolved && r.Resolved.HasValue)
                 .Select(r => Math.Max(0, (r.Resolved!.Value - r.ReportedAt).TotalDays)).ToList();

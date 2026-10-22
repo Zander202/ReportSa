@@ -7,7 +7,7 @@
 <form asp-action="Update" method="post" enctype="multipart/form-data"><input type="hidden" name="Id" value="@Model.Id" /><input type="hidden" name="RowVersion" value="@Convert.ToBase64String(Model.RowVersion)" />
 <label for="Priority">Priority</label><select id="Priority" name="Priority">@foreach (var p in Enum.GetValues<Priority>()) { <option value="@((int)p)" selected="@(Model.Priority == p)">@p</option> }</select><p class="hint">Priority describes urgency and does not change progress.</p>
 <label for="AssignedRole">Assigned role</label><input id="AssignedRole" name="AssignedRole" maxlength="120" value="@Model.AssignedRole" />
-<label for="AssignedPerson">Assigned person</label><input id="AssignedPerson" name="AssignedPerson" maxlength="120" value="@Model.AssignedPerson" />
+<label for="AssignedPerson">Assigned person</label><input id="AssignedPerson" name="AssignedPerson" maxlength="120" value="@Municipal.Web.Services.AssignmentService.PersonName(Model.AssignedPerson)" />
 <label for="EstimatedCompletionLocal">Estimated completion (SAST)</label><input id="EstimatedCompletionLocal" name="EstimatedCompletionLocal" type="datetime-local" value="@Model.EstimatedCompletionAt?.ToOffset(TimeSpan.FromHours(2)).ToString("yyyy-MM-ddTHH:mm")" />
 <label for="Status">Status</label><select id="Status" name="Status"><option value="@((int)Model.Status)">@Labels.Status(Model.Status) (current)</option>@if (Model.Status != RequestStatus.Closed) { <option value="@((int)Model.Status+1)">@Labels.Status((RequestStatus)((int)Model.Status+1))</option> }</select>
 <label for="ProgressNote">Progress update</label><textarea id="ProgressNote" name="ProgressNote" maxlength="1000" rows="3"></textarea>

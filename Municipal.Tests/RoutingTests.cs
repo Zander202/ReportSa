@@ -27,8 +27,19 @@ public class RoutingTests
             ["Assignments:WaterLeak:Person"] = "Configured technician"
         }).Build();
         var assignments = new AssignmentService(configuration);
-        Assert.Contains("(demo staff)", assignments.For(Category.Pothole).Person);
+        var person = assignments.For(Category.Pothole).Person;
+        Assert.False(string.IsNullOrWhiteSpace(person));
+        Assert.DoesNotContain("(demo staff)", person);
         Assert.Equal("Configured technician", assignments.For(Category.WaterLeak).Person);
+    }
+
+    [Theory]
+    [InlineData("Thabo Molefe (demo staff)", "Thabo Molefe")]
+    [InlineData(" Naledi Nkosi (DEMO STAFF) ", "Naledi Nkosi")]
+    [InlineData("Configured technician", "Configured technician")]
+    public void PersonNamesPreserveStaffNamesWithoutLegacySuffix(string stored, string expected)
+    {
+        Assert.Equal(expected, AssignmentService.PersonName(stored));
     }
 
     [Fact]
