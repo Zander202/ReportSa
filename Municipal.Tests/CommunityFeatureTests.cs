@@ -30,6 +30,28 @@ public class PhotoValidationTests
 
 public class CommunityWorkflowTests(SqlFixture fixture) : IClassFixture<SqlFixture>
 {
+    [Fact] public async Task MunicipalityPerformanceOmitsBlankNamesAndKeepsNamedRows()
+    {
+        using var scope = fixture.App.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var code = Guid.NewGuid().ToString("N")[..10];
+        foreach (var name in new[] { "Cape Town Metropolitan Municipality", "", "   ", "eThekwini Metropolitan Municipality" })
+            db.Requests.Add(new ProblemRequest
+            {
+                ReferenceCode = RequestService.NewReference(), MunicipalityCode = code,
+                MunicipalityName = name, Status = RequestStatus.Resolved,
+                ReportedAt = DateTimeOffset.UtcNow.AddDays(-1), ResolvedAt = DateTimeOffset.UtcNow
+            });
+        await db.SaveChangesAsync();
+
+        var metrics = await scope.ServiceProvider.GetRequiredService<CommunityService>().DashboardAsync(code);
+
+        Assert.Equal(new[] { "Cape Town Metropolitan Municipality", "eThekwini Metropolitan Municipality" },
+            metrics.Municipalities.Select(m => m.Name));
+        Assert.All(metrics.Municipalities, m => Assert.Equal(1, m.Resolved));
+        Assert.Equal(4, metrics.Resolved);
+    }
+
     [Fact] public async Task DashboardPagesKeepTotalsAndStableOrderWithoutDroppingReports()
     {
         using var scope = fixture.App.Services.CreateScope();

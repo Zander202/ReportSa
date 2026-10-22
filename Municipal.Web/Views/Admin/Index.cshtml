@@ -111,7 +111,7 @@
                             <td>@request.Priority</td>
                             <td><span class="status-badge">@Labels.Status(request.Status)</span></td>
                             <td><div class="dashboard-evidence">@foreach (var repair in new[] { false, true }) { <div><strong>@(repair ? "After" : "Before")</strong><div class="dashboard-thumbnails">@foreach (var photo in request.Photos.Where(p => p.IsResolution == repair)) { <a asp-controller="Requests" asp-action="Photo" asp-route-id="@photo.Id" target="_blank" rel="noopener noreferrer"><img src="@Url.Action("Photo", "Requests", new { id = photo.Id })" alt="@(repair ? "After repair" : "Before repair")" loading="lazy" /></a> }@if (!request.Photos.Any(p => p.IsResolution == repair)) { <span class="muted">No photo</span> }</div></div> }</div></td>
-                            <td>@request.AssignedRole<br /><span class="muted">@request.AssignedPerson</span></td>
+                            <td>@request.AssignedRole<br /><span class="muted">@Municipal.Web.Services.AssignmentService.PersonName(request.AssignedPerson)</span></td>
                             <td>@request.ReportedAt.ToOffset(TimeSpan.FromHours(2)).ToString("dd MMM yyyy, HH:mm") SAST</td>
                             <td><a asp-action="Edit" asp-route-id="@request.Id">Manage</a></td>
                         </tr>
