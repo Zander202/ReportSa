@@ -21,8 +21,8 @@ public class TrackForm
 }
 public class LoginForm
 {
-    [Required, EmailAddress] public string Email { get; set; } = "";
-    [Required, DataType(DataType.Password)] public string Password { get; set; } = "";
+    [Required, EmailAddress, StringLength(254)] public string Email { get; set; } = "";
+    [Required, DataType(DataType.Password), StringLength(256, MinimumLength = 12)] public string Password { get; set; } = "";
 }
 public class UpdateForm
 {

@@ -52,7 +52,8 @@ public class AccountController : Controller
             if (!await _users.IsEmailConfirmedAsync(user))
             {
                 _logger.LogInformation("Unconfirmed email login attempt for {Email}", email);
-                ModelState.AddModelError(string.Empty, "Please confirm your email before signing in.");
+                // Use the generic error to avoid confirming the account exists.
+                ModelState.AddModelError(string.Empty, genericError);
                 return View(form);
             }
 
