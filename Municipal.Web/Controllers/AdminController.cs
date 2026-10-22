@@ -15,6 +15,7 @@ public class AdminController(
     UserManager<IdentityUser> users,
     RoleManager<IdentityRole> roles) : Controller
 {
+    //testing
     [HttpGet]
     public async Task<IActionResult> Index(
         Category? category,
