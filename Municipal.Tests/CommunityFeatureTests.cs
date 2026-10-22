@@ -30,6 +30,41 @@ public class PhotoValidationTests
 
 public class CommunityWorkflowTests(SqlFixture fixture) : IClassFixture<SqlFixture>
 {
+    [Theory]
+    [InlineData(RequestStatus.Submitted)]
+    [InlineData(RequestStatus.Assigned)]
+    [InlineData(RequestStatus.InProgress)]
+    public async Task AdminProgressPhotosPersistWithoutResolvingTheReport(RequestStatus status)
+    {
+        using var scope = fixture.App.Services.CreateScope();
+        var service = scope.ServiceProvider.GetRequiredService<RequestService>();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var report = await service.SubmitAsync(Report());
+        UpdateForm Update(RequestStatus next, int photoCount = 0) => new()
+        {
+            Id = report.Id, RowVersion = Convert.ToBase64String(report.RowVersion), Status = next,
+            Priority = report.Priority, AssignedRole = report.AssignedRole, AssignedPerson = report.AssignedPerson,
+            ResolutionPhotos = Enumerable.Range(0, photoCount)
+                .Select(_ => PhotoValidationTests.File(PhotoValidationTests.Image)).ToList()
+        };
+        for (var next = RequestStatus.Assigned; next <= status; next++)
+            await service.UpdateAsync(Update(next));
+
+        await service.UpdateAsync(Update(status, 1));
+        db.ChangeTracker.Clear();
+        report = (await service.TrackAsync(report.ReferenceCode))!;
+        Assert.Equal(status, report.Status);
+        Assert.Null(report.ResolvedAt);
+        var photo = await db.RequestPhotos.SingleAsync(p => p.ProblemRequestId == report.Id && p.IsResolution);
+        Assert.Equal(PhotoValidationTests.Image, photo.Content);
+        Assert.Contains(report.History, h => h.Status == status && h.Note == "Progress or repair evidence added.");
+
+        // Adding more evidence later must still enforce the total per-report limit.
+        await service.UpdateAsync(Update(status, 2));
+        await Assert.ThrowsAsync<ArgumentException>(() => service.UpdateAsync(Update(status, 1)));
+        Assert.Equal(3, await db.RequestPhotos.CountAsync(p => p.ProblemRequestId == report.Id && p.IsResolution));
+    }
+
     [Fact] public async Task MunicipalityPerformanceOmitsBlankNamesAndKeepsNamedRows()
     {
         using var scope = fixture.App.Services.CreateScope();

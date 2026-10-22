@@ -1,4 +1,4 @@
-const { chromium } = require('C:/Users/dzand/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const baseUrl = process.env.REPORTSA_URL || 'http://localhost:5050';
 

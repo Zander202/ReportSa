@@ -123,9 +123,8 @@ public class RequestService
         var request = await db.Requests.FindAsync(form.Id) ?? throw new KeyNotFoundException();
         if (form.Status != request.Status && (int)form.Status != (int)request.Status + 1 && form.Status != RequestStatus.Closed)
             throw new ArgumentException("Move to the next workflow stage or close the completed ticket.");
-        if (photos.Count > 0 && form.Status < RequestStatus.Resolved) throw new ArgumentException("Attach repair evidence when marking the report resolved.");
         if (photos.Count + await db.RequestPhotos.CountAsync(p => p.ProblemRequestId == request.Id && p.IsResolution) > 3)
-            throw new ArgumentException("A report can have up to three repair photos.");
+            throw new ArgumentException("A report can have up to three progress and repair photos in total.");
         byte[] version;
         try { version = Convert.FromBase64String(form.RowVersion); } catch (FormatException) { throw new ArgumentException("Invalid request version."); }
         db.Entry(request).Property(x => x.RowVersion).OriginalValue = version;
@@ -145,7 +144,7 @@ public class RequestService
                 Note = string.IsNullOrWhiteSpace(form.ProgressNote)
                     ? scheduleChanged ? $"Completion scheduled for {estimate?.ToOffset(TimeSpan.FromHours(2)):dd MMM yyyy, HH:mm} SAST."
                     : assignmentChanged ? $"Assigned to {assignedPerson} ({assignedRole})."
-                    : photos.Count > 0 ? "Repair evidence added." : null : form.ProgressNote.Trim() });
+                    : photos.Count > 0 ? "Progress or repair evidence added." : null : form.ProgressNote.Trim() });
         if (statusChanged && form.Status == RequestStatus.Resolved)
         {
             request.ResolvedAt = now;

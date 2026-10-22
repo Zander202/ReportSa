@@ -460,3 +460,8 @@ docs/
 - Public endpoints never expose resident email addresses, reference codes, or precise coordinates.
 - Optimistic concurrency (RowVersion) prevents lost updates when two admins edit the same request simultaneously.
 - SQL injection is prevented by parameterised EF Core queries throughout.
+
+
+## Browser verification scripts
+
+Install Node.js 20 or later and Google Chrome, then run `npm install` from the project folder to install the browser testing dependency. Start the application before running a verification script, for example `node verify-icons.cjs`. Set `REPORTSA_URL` to the application address for scripts that support it; check the selected script for its default URL.

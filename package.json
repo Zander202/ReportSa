@@ -1,0 +1,9 @@
+{
+  "name": "reportsa-verification",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser verification scripts for ReportSA",
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
