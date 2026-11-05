@@ -74,11 +74,26 @@
 <section class="municipality-performance"><h2>Municipality performance</h2><div class="table-wrap"><table><thead><tr><th>Municipality</th><th>Open</th><th>Overdue</th><th>Resolved</th><th>Avg. days</th></tr></thead><tbody>@foreach (var m in metrics.Municipalities) { <tr><td>@m.Name</td><td>@m.Open</td><td class="@(m.Overdue > 0 ? "overdue-value" : "")">@m.Overdue</td><td>@m.Resolved</td><td>@(m.AverageDays?.ToString("0.0") ?? "--")</td></tr> }</tbody></table></div></section>
 }
 
-<section class="panel result">
+<section class="panel result" id="report-results">
     <div class="result-top">
         <h2>@(resolvedTab ? "Resolved tickets" : "Active requests")</h2>
         <span class="status-badge">@ViewBag.TotalCount total</span>
     </div>
+
+    @if ((int)ViewBag.TotalPages > 1)
+    {
+        <nav aria-label="Report pages" class="report-pagination">
+            @if ((int)ViewBag.Page > 1)
+            {
+                <a class="button secondary previous-page" asp-action="Index" asp-fragment="report-results" asp-route-page="@((int)ViewBag.Page - 1)" asp-route-tab="@ViewBag.Tab" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-status="@selectedStatus" asp-route-sort="@selectedSort" asp-route-overdue="@ViewBag.Overdue">Previous</a>
+            }
+            <span>Page @ViewBag.Page of @ViewBag.TotalPages</span>
+            @if ((int)ViewBag.Page < (int)ViewBag.TotalPages)
+            {
+                <a class="button secondary next-page" asp-action="Index" asp-fragment="report-results" asp-route-page="@((int)ViewBag.Page + 1)" asp-route-tab="@ViewBag.Tab" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-status="@selectedStatus" asp-route-sort="@selectedSort" asp-route-overdue="@ViewBag.Overdue">Next</a>
+            }
+        </nav>
+    }
 
     @if (Model.Count == 0)
     {
@@ -121,17 +136,3 @@
         </div>
     }
 </section>
-@if ((int)ViewBag.TotalPages > 1)
-{
-    <nav aria-label="Report pages" class="community-filters">
-        @if ((int)ViewBag.Page > 1)
-        {
-            <a class="button secondary" asp-action="Index" asp-route-page="@((int)ViewBag.Page - 1)" asp-route-tab="@ViewBag.Tab" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-status="@selectedStatus" asp-route-sort="@selectedSort" asp-route-overdue="@ViewBag.Overdue">Previous</a>
-        }
-        <span>Page @ViewBag.Page of @ViewBag.TotalPages</span>
-        @if ((int)ViewBag.Page < (int)ViewBag.TotalPages)
-        {
-            <a class="button secondary" asp-action="Index" asp-route-page="@((int)ViewBag.Page + 1)" asp-route-tab="@ViewBag.Tab" asp-route-municipalityCode="@ViewBag.MunicipalityCode" asp-route-category="@selectedCategory" asp-route-priority="@selectedPriority" asp-route-status="@selectedStatus" asp-route-sort="@selectedSort" asp-route-overdue="@ViewBag.Overdue">Next</a>
-        }
-    </nav>
-}

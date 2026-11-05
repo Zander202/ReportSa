@@ -123,6 +123,63 @@ public class CommunityWorkflowTests(SqlFixture fixture) : IClassFixture<SqlFixtu
         Assert.Equal(first.Select(r => r.Id), (await Page(-1)).Select(r => r.Id));
     }
 
+    [Fact] public async Task ResolvedDashboardLinksNavigateBetweenFilteredPages()
+    {
+        using var scope = fixture.App.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var code = Guid.NewGuid().ToString("N")[..10];
+        var reported = DateTimeOffset.UtcNow.AddDays(-1);
+        var reports = Enumerable.Range(0, 26).Select(i => new ProblemRequest
+        {
+            ReferenceCode = RequestService.NewReference(), MunicipalityCode = code,
+            MunicipalityName = "Pagination test", ReportedAt = reported.AddMinutes(i),
+            ResolvedAt = DateTimeOffset.UtcNow, Category = Category.Pothole, Status = RequestStatus.Resolved
+        }).ToArray();
+        db.Requests.AddRange(reports);
+        await db.SaveChangesAsync();
+
+        using var admin = fixture.Client();
+        var login = await admin.GetStringAsync("/Account/Login");
+        var token = System.Net.WebUtility.HtmlDecode(System.Text.RegularExpressions.Regex.Match(login,
+            "<input[^>]*name=\"__RequestVerificationToken\"[^>]*value=\"([^\"]+)\"").Groups[1].Value);
+        var signedIn = await admin.PostAsync("/Account/Login", new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["__RequestVerificationToken"] = token, ["Email"] = fixture.Email, ["Password"] = fixture.Password
+        }));
+        Assert.Equal(System.Net.HttpStatusCode.Redirect, signedIn.StatusCode);
+
+        static string PageLink(string html, string label)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(html, $"<a[^>]*href=\"([^\"]+)\"[^>]*>{label}</a>");
+            Assert.True(match.Success, $"Expected a link for {label}.");
+            return System.Net.WebUtility.HtmlDecode(match.Groups[1].Value);
+        }
+
+        var first = await admin.GetStringAsync($"/Admin?tab=resolved&municipalityCode={code}&category=Pothole&status=Resolved&sort=newest");
+        Assert.Contains("Page 1 of 2", first);
+        Assert.DoesNotContain(reports[0].ReferenceCode, first);
+
+        var next = PageLink(first, "Next");
+        var filters = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(new Uri(admin.BaseAddress!, next).Query);
+        Assert.Equal("resolved", filters["tab"].ToString());
+        Assert.Equal(code, filters["municipalityCode"].ToString());
+        Assert.Equal("Pothole", filters["category"].ToString());
+        Assert.Equal("Resolved", filters["status"].ToString());
+        Assert.Equal("newest", filters["sort"].ToString());
+
+        var second = await admin.GetStringAsync(next);
+        Assert.Contains("Page 2 of 2", second);
+        Assert.Contains(reports[0].ReferenceCode, second);
+        Assert.DoesNotContain(reports[1].ReferenceCode, second);
+        var previous = await admin.GetStringAsync(PageLink(second, "Previous"));
+        Assert.Contains("Page 1 of 2", previous);
+        Assert.Contains(reports[1].ReferenceCode, previous);
+
+        var unfiltered = await admin.GetStringAsync("/Admin?tab=resolved");
+        var unfilteredSecond = await admin.GetStringAsync(PageLink(unfiltered, "Next"));
+        Assert.Contains("Page 2 of ", unfilteredSecond);
+    }
+
     private static ReportForm Report() => new() { MunicipalityCode = "CPT", Category = Category.WaterLeak,
         Location = "Private test location", ResidentEmail = "owner@example.invalid", Latitude = -33.9249, Longitude = 18.4241,
         Photos = [PhotoValidationTests.File(PhotoValidationTests.Image)] };

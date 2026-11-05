@@ -9,6 +9,14 @@
 .community-filters > div { min-width: 0; }
 .community-filters label { margin-top: 0; }
 .community-filters .button { min-height: 44px; white-space: normal; }
+html:has(#report-results) { scrollbar-gutter: stable; }
+#report-results { scroll-margin-top: 104px; }
+.report-pagination { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 8px; margin: 12px 0 16px; text-align: center; }
+.report-pagination > * { grid-row: 1; }
+.report-pagination .previous-page { grid-column: 1; justify-self: start; }
+.report-pagination span { grid-column: 2; }
+.report-pagination .next-page { grid-column: 3; justify-self: end; }
+.report-pagination .button { margin: 0; padding-inline: 12px; }
 .nearby-layout { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 30px; align-items: start; }
 .nearby-layout .location-canvas { height: 540px; position: sticky; top: 20px; }
 .community-report { padding: 20px 0; border-bottom: 1px solid var(--line); }

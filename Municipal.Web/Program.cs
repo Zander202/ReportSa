@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Municipal.Web.Data;
 using Municipal.Web.Services;
+using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,23 @@ if (string.IsNullOrWhiteSpace(connection))
 if (!provider.Equals("Postgres", StringComparison.OrdinalIgnoreCase)
     && !provider.Equals("SqlServer", StringComparison.OrdinalIgnoreCase))
     throw new InvalidOperationException("Database:Provider must be Postgres or SqlServer.");
+
+if (provider.Equals("Postgres", StringComparison.OrdinalIgnoreCase))
+{
+    var postgres = new NpgsqlConnectionStringBuilder(connection);
+    if (postgres.Port == 5432 &&
+        postgres.Host?.EndsWith(".pooler.supabase.com", StringComparison.OrdinalIgnoreCase) == true)
+    {
+        // Supabase reserves a slot for each session. Queue database work in this process
+        // so parallel dashboard photo requests do not open separate server sessions.
+        postgres.Pooling = true;
+        postgres.MaxPoolSize = 1;
+        postgres.MinPoolSize = 0;
+        postgres.ConnectionIdleLifetime = Math.Min(postgres.ConnectionIdleLifetime, 30);
+        postgres.ConnectionPruningInterval = Math.Min(postgres.ConnectionPruningInterval, postgres.ConnectionIdleLifetime);
+        connection = postgres.ConnectionString;
+    }
+}
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
